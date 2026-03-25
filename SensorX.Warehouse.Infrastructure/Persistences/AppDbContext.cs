@@ -47,4 +47,3 @@ public class AppDbContext : DbContext
         return result;
     }
 }
-

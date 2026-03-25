@@ -9,11 +9,3 @@ public class EfRepository<T>(AppDbContext dbContext) : RepositoryBase<T>(dbConte
     public void Update(T entity) => DbContext.Set<T>().Update(entity);
     public void Delete(T entity) => DbContext.Set<T>().Remove(entity);
 }
-
-public class EfReadRepository<T> : RepositoryBase<T>, IReadRepository<T> where T : Entity
-{
-    public EfReadRepository(AppDbContext dbContext) : base(dbContext)
-    {
-    }
-}
-

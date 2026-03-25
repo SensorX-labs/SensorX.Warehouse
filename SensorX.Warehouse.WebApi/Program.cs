@@ -1,13 +1,7 @@
-using SensorX.Warehouse.WebApi.API;
-using SensorX.Warehouse.WebApi.Configurations;
 using SensorX.Warehouse.Infrastructure.DI;
-using Yitter.IdGenerator;
+using SensorX.Warehouse.WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Cấu hình Snowflake Id Generator
-var options = new IdGeneratorOptions(1); // WorkerId = 1, bạn có thể đổi theo server
-YitIdHelper.SetIdGenerator(options);
 
 builder.Services.AddServices();
 builder.Services.AddInfrastructure();
@@ -26,8 +20,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Đăng ký API groups
-app.MapUserApi();
+
 
 app.Run();
 

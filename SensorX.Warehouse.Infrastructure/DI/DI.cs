@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Infrastructure.Persistences;
 using SensorX.Warehouse.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SensorX.Warehouse.Infrastructure.DI
 {
@@ -17,7 +17,6 @@ namespace SensorX.Warehouse.Infrastructure.DI
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
-            services.AddScoped<IPasswordHasher, PasswordHasher>();
 
             return services;
         }
