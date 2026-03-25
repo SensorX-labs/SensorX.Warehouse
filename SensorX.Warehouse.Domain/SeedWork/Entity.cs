@@ -1,9 +1,9 @@
 namespace SensorX.Warehouse.Domain.SeedWork
 {
-    public abstract class Entity<EntityID>(EntityID id) : IEquatable<Entity<EntityID>> where EntityID : VoId
+    public abstract class Entity<TId>(TId id) : IEquatable<Entity<TId>>, IHasDomainEvents where TId : VoId, IEntityId<TId>
     {
         private int? _requestedHashCode;
-        public EntityID Id { get; protected set; } = id;
+        public TId Id { get; init; } = id;
 
         private readonly List<IDomainEvent> _domainEvents = [];
         public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
@@ -21,8 +21,8 @@ namespace SensorX.Warehouse.Domain.SeedWork
             _domainEvents?.Clear();
         }
 
-        public override bool Equals(object? obj) => Equals(obj as Entity<EntityID>);
-        public bool Equals(Entity<EntityID>? other)
+        public override bool Equals(object? obj) => Equals(obj as Entity<TId>);
+        public bool Equals(Entity<TId>? other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -35,8 +35,8 @@ namespace SensorX.Warehouse.Domain.SeedWork
             return _requestedHashCode.Value;
         }
 
-        public static bool operator ==(Entity<EntityID> left, Entity<EntityID> right) => Equals(left, right);
-        public static bool operator !=(Entity<EntityID> left, Entity<EntityID> right) => !(left == right);
+        public static bool operator ==(Entity<TId> left, Entity<TId> right) => Equals(left, right);
+        public static bool operator !=(Entity<TId> left, Entity<TId> right) => !(left == right);
     }
 }
 

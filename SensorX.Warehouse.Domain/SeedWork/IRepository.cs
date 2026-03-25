@@ -8,8 +8,3 @@ public interface IRepository<T> : IRepositoryBase<T> where T : class, IAggregate
     public void Update(T entity);
     public void Delete(T entity);
 }
-
-public interface IReadRepository<T> : IReadRepositoryBase<T> where T : Entity<VoId>
-{
-}
-

@@ -16,4 +16,8 @@ public record Quantity
     }
 
     public static implicit operator int(Quantity quantity) => quantity.Value;
+    public static Quantity operator -(Quantity a, int b) => new(a.Value - b);
+    public static Quantity operator +(Quantity a, int b) => new(a.Value + b);
+    public static Quantity operator -(Quantity a, Quantity b) => new(a.Value - b.Value);
+    public static Quantity operator +(Quantity a, Quantity b) => new(a.Value + b.Value);
 }

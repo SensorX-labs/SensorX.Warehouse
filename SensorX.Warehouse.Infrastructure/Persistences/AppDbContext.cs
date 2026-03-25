@@ -25,7 +25,7 @@ public class AppDbContext : DbContext
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var result = await base.SaveChangesAsync(cancellationToken);
-        var entities = ChangeTracker.Entries<Entity<VoId>>()
+        var entities = ChangeTracker.Entries<IHasDomainEvents>()
             .Where(e => e.Entity.DomainEvents.Count > 0)
             .Select(e => e.Entity)
             .ToList();
