@@ -16,8 +16,8 @@ public class InventoryItem(
     public ProductId ProductId { get; private set; } = productId;
     public WarehouseId WarehouseId { get; private set; } = warehouseId;
     public WarehouseItemLocation WarehouseItemLocation { get; private set; } = warehouseItemLocation;
-    public int PhysicalQuantity { get; private set; } = physicalQuantity;
-    public int AllocatedQuantity { get; private set; } = allocatedQuantity;
+    public Quantity PhysicalQuantity { get; private set; } = physicalQuantity;
+    public Quantity AllocatedQuantity { get; private set; } = allocatedQuantity;
 
     public void Allocate(Quantity quantity)
     {

@@ -7,11 +7,11 @@ namespace SensorX.Warehouse.WebApi.Configurations
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             // Register your services here
-            
+
             // MediatR - scan từ Assembly Application
             services.AddMediatR(cfg =>
             {
-                cfg.RegisterServicesFromAssembly(Assembly.Load("Application"));
+                cfg.RegisterServicesFromAssembly(Assembly.Load("SensorX.Warehouse.Application"));
             });
             return services;
         }

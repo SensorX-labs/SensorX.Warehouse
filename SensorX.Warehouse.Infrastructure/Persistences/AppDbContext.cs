@@ -5,13 +5,9 @@ using SensorX.Warehouse.Domain.SeedWork;
 
 namespace SensorX.Warehouse.Infrastructure.Persistences;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator mediator) : DbContext(options)
 {
-    private readonly IMediator _mediator;
-    public AppDbContext(DbContextOptions<AppDbContext> options, IMediator mediator) : base(options)
-    {
-        _mediator = mediator;
-    }
+    private readonly IMediator _mediator = mediator;
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);

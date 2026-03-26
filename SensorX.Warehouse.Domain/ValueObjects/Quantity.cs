@@ -8,9 +8,9 @@ public record Quantity
 
     public Quantity(int value)
     {
-        if (value <= 0)
+        if (value < 0)
         {
-            throw new DomainException("Quantity must be positive");
+            throw new DomainException("Quantity cannot be negative");
         }
         Value = value;
     }

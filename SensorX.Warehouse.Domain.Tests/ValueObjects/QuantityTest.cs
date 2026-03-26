@@ -8,10 +8,17 @@ public class QuantityTest
 {
     [Theory]
     [InlineData(-1)]
-    [InlineData(0)]
-    public void Constructor_ShouldThrowException_WhenValueIsNotPositive(int invalidValue)
+    [InlineData(-100)]
+    public void Constructor_ShouldThrowException_WhenValueIsNegative(int invalidValue)
     {
         Assert.Throws<DomainException>(() => new Quantity(invalidValue));
+    }
+
+    [Fact]
+    public void Constructor_ShouldAllowZero()
+    {
+        var q = new Quantity(0);
+        Assert.Equal(0, q.Value);
     }
 
     [Fact]
