@@ -6,7 +6,7 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 
 public class StockOut(
     StockOutId id,
-    string code,
+    Code code,
     string description,
     string recceiverName,
     string receiverPhone,
@@ -15,7 +15,7 @@ public class StockOut(
     string taxCode
 ) : Entity<StockOutId>(id), IAggregateRoot
 {
-    public string Code { get; private set; } = code;
+    public Code Code { get; private set; } = code;
     public string Description { get; private set; } = description;
     public string RecceiverName { get; private set; } = recceiverName;
     public string ReceiverPhone { get; private set; } = receiverPhone;

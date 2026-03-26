@@ -5,12 +5,12 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public class PickingNote(
     PickingNoteId pickingNoteId,
-    string code,
+    Code code,
     DocumentReference sourceDocument,
     PickingStatus status
 ) : Entity<PickingNoteId>(pickingNoteId), IAggregateRoot
 {
-    public string Code { get; private set; } = code;
+    public Code Code { get; private set; } = code;
     public DocumentReference SourceDocument { get; private set; } = sourceDocument;
     public PickingStatus Status { get; private set; } = status;
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
@@ -22,7 +22,7 @@ public class PickingNote(
     {
         return new PickingNote(
             PickingNoteId.New(),
-            noteCode,
+            Code.From(noteCode),
             new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
             PickingStatus.Pending
         );
@@ -32,7 +32,7 @@ public class PickingNote(
     {
         return new PickingNote(
             PickingNoteId.New(),
-            noteCode,
+            Code.From(noteCode),
             new DocumentReference(DocumentType.TransferOrder, transferOrderId, noteCode),
             PickingStatus.Pending
         );
