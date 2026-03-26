@@ -18,8 +18,5 @@ public class StockInItem(
     public string Unit { get; private set; } = unit;
     public Quantity Quantity { get; private set; } = quantity;
 
-    public void AddQuantity(Quantity quantity)
-    {
-        Quantity += quantity;
-    }
+    public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }

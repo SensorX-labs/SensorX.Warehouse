@@ -12,8 +12,5 @@ public class PickingLineItem(
     public ProductId ProductId { get; private set; } = productId;
     public Quantity RequestedQuantity { get; private set; } = requestedQuantity;
 
-    public void AddQuantity(Quantity quantity)
-    {
-        RequestedQuantity += quantity;
-    }
+    public void AddQuantity(Quantity quantity) => RequestedQuantity += quantity;
 }
