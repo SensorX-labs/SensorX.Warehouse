@@ -13,6 +13,7 @@ public class PickingNote(
     public string Code { get; private set; } = code;
     public DocumentReference SourceDocument { get; private set; } = sourceDocument;
     public PickingStatus Status { get; private set; } = status;
+    public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
 
     private readonly List<PickingLineItem> _lineItems = [];
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();

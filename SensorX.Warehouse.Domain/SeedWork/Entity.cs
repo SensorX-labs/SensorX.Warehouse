@@ -1,6 +1,6 @@
 namespace SensorX.Warehouse.Domain.SeedWork
 {
-    public abstract class Entity<TId>(TId id) : IEquatable<Entity<TId>>, IHasDomainEvents where TId : VoId, IEntityId<TId>
+    public abstract class Entity<TId>(TId id) : IEquatable<Entity<TId>>, IHasDomainEvents where TId : VoId
     {
         private int? _requestedHashCode;
         public TId Id { get; init; } = id;
