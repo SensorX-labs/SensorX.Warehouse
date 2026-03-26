@@ -16,16 +16,13 @@ public record Code
 
     public static Code From(string value) => new(value);
 
-    public static Code Create(string prefix, int number)
+    public static Code Create(string prefix)
     {
         if (string.IsNullOrWhiteSpace(prefix))
             throw new DomainException("Prefix cannot be empty.");
 
-        if (number < 0)
-            throw new DomainException("Sequence number cannot be negative.");
-
         var now = DateTime.UtcNow;
-        var code = $"{prefix.ToUpper()}-{now:yyMMdd}-{number:D5}";
+        var code = $"{prefix.ToUpper()}-{now:yyMMdd}-{now:HHmmssfff}";
         return new Code(code);
     }
 

@@ -15,7 +15,7 @@ public class StockOutTests
     {
         // Arrange
         var id = StockOutId.New();
-        var code = "SO-001";
+        var code = Code.Create("PX");
         var description = "Xuất kho bán hàng";
         var receiverName = "Nguyễn Văn A";
         var receiverPhone = "0901234567";
@@ -123,7 +123,7 @@ public class StockOutTests
     {
         return new StockOut(
             StockOutId.New(),
-            "SO-TEST",
+            Code.Create("PX"),
             "Description",
             "Receiver",
             "0000000000",

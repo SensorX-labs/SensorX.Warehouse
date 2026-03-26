@@ -14,7 +14,7 @@ public class StockInTests
     {
         // Arrange
         var id = StockInId.New();
-        var code = "SI-001";
+        var code = "PN-001";
         var transferOrderCode = "TO-001";
         var description = "Nhập kho từ lệnh điều chuyển";
         var receivedDate = DateTimeOffset.Now;
@@ -25,7 +25,7 @@ public class StockInTests
         // Act
         var stockIn = new StockIn(
             id,
-            code,
+            Code.From(code),
             transferOrderCode,
             description,
             receivedDate,
@@ -36,7 +36,7 @@ public class StockInTests
 
         // Assert
         Assert.Equal(id, stockIn.Id);
-        Assert.Equal(code, stockIn.Code);
+        Assert.Equal(code, (string)stockIn.Code);
         Assert.Equal(transferOrderCode, stockIn.TransferOrderCode);
         Assert.Equal(description, stockIn.Description);
         Assert.Equal(receivedDate, stockIn.ReceivedDate);
@@ -100,7 +100,7 @@ public class StockInTests
     {
         return new StockIn(
             StockInId.New(),
-            "SI-TEST",
+            Code.Create("PN"),
             null,
             "Description",
             DateTimeOffset.Now,
