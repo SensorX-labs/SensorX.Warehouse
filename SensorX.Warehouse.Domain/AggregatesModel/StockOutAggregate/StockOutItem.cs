@@ -11,7 +11,7 @@ public class StockOutItem(
     string unit,
     Quantity quantity,
     string manufactureName,
-    string note
+    string? note
 ) : Entity<StockOutItemId>(id)
 {
     public ProductId ProductId { get; private set; } = productId;
@@ -20,7 +20,7 @@ public class StockOutItem(
     public string Unit { get; private set; } = unit;
     public Quantity Quantity { get; private set; } = quantity;
     public string ManufactureName { get; private set; } = manufactureName;
-    public string Note { get; private set; } = note;
+    public string? Note { get; private set; } = note;
 
     public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }

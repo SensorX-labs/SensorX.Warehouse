@@ -23,7 +23,7 @@ public class StockOut(
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
+    public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity, string manufactureName, string? note)
     {
         var existingItem = _lineItems.FirstOrDefault(x => x.ProductId == productId);
         if (existingItem is not null)

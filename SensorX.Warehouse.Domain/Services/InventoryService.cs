@@ -10,6 +10,10 @@ namespace SensorX.Warehouse.Domain.Services;
 
 public class InventoryService
 {
+    /// <summary>
+    /// Tạo phiếu xuất kho (StockOut) từ lệnh lấy hàng (PickingNote).
+    /// Đồng thời cập nhật trạng thái giữ hàng (CancelAllocation) và xác nhận xuất kho (ConfirmStockOut) cho từng mặt hàng.
+    /// </summary>
     public StockOut CreateStockOutFromPickingNote(
         List<InventoryItem> items,
         PickingNote note
@@ -39,6 +43,9 @@ public class InventoryService
         return stockOut;
     }
 
+    /// <summary>
+    /// Tạo phiếu nhập kho (StockIn) và cập nhật số lượng tồn kho vật lý.
+    /// </summary>
     public StockIn CreateStockIn(
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
@@ -76,6 +83,9 @@ public class InventoryService
         return stockIn;
     }
 
+    /// <summary>
+    /// Điều chỉnh kho (xuất kho trực tiếp) và cập nhật số lượng tồn kho vật lý.
+    /// </summary>
     public StockOut AdjustInventory(List<InventoryItem> items, List<StockOutLineRequest> lineItems)
     {
         var stockOut = new StockOut(
@@ -100,6 +110,9 @@ public class InventoryService
         return stockOut;
     }
 
+    /// <summary>
+    /// Bắt đầu quá trình lấy hàng, thực hiện giữ hàng (Allocate) trong kho.
+    /// </summary>
     public void StartPicking(List<InventoryItem> items, PickingNote pickingNote)
     {
         pickingNote.StartPicking();
@@ -114,4 +127,4 @@ public class InventoryService
             inventoryItem.Allocate(item.Quantity);
         }
     }
-}
+}
