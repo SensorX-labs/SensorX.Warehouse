@@ -24,26 +24,19 @@ public class StockOutTests
         var taxCode = "0101234567";
 
         // Act
+        var deliveryInfo = new DeliveryInfo(receiverName, receiverPhone, deliveryAddress, companyName, taxCode);
         var stockOut = new StockOut(
             id,
             code,
             description,
-            receiverName,
-            receiverPhone,
-            deliveryAddress,
-            companyName,
-            taxCode
+            deliveryInfo
         );
 
         // Assert
         Assert.Equal(id, stockOut.Id);
         Assert.Equal(code, stockOut.Code);
         Assert.Equal(description, stockOut.Description);
-        Assert.Equal(receiverName, stockOut.RecceiverName);
-        Assert.Equal(receiverPhone, stockOut.ReceiverPhone);
-        Assert.Equal(deliveryAddress, stockOut.DeliveryAddress);
-        Assert.Equal(companyName, stockOut.CompanyName);
-        Assert.Equal(taxCode, stockOut.TaxCode);
+        Assert.Equal(deliveryInfo, stockOut.DeliveryInfo);
         Assert.Equal(WarehouseId.Default, stockOut.WarehouseId);
         Assert.Null(stockOut.PickingNoteId);
         Assert.Empty(stockOut.LineItems);
@@ -125,11 +118,7 @@ public class StockOutTests
             StockOutId.New(),
             Code.Create("PX"),
             "Description",
-            "Receiver",
-            "0000000000",
-            "Address",
-            "Company",
-            "TaxCode"
+            new DeliveryInfo("Receiver", "0000000000", "Address", "Company", "TaxCode")
         );
     }
 }

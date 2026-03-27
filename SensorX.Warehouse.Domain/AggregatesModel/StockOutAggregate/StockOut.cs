@@ -8,20 +8,12 @@ public class StockOut(
     StockOutId id,
     Code code,
     string description,
-    string recceiverName,
-    string receiverPhone,
-    string deliveryAddress,
-    string companyName,
-    string taxCode
+    DeliveryInfo deliveryInfo
 ) : Entity<StockOutId>(id), IAggregateRoot
 {
     public Code Code { get; private set; } = code;
     public string Description { get; private set; } = description;
-    public string RecceiverName { get; private set; } = recceiverName;
-    public string ReceiverPhone { get; private set; } = receiverPhone;
-    public string DeliveryAddress { get; private set; } = deliveryAddress;
-    public string CompanyName { get; private set; } = companyName;
-    public string TaxCode { get; private set; } = taxCode;
+    public DeliveryInfo DeliveryInfo { get; private set; } = deliveryInfo;
 
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
     public PickingNoteId? PickingNoteId { get; private set; }

@@ -38,7 +38,7 @@ public class PickingNote(
         );
     }
 
-    public void AddItem(ProductId productId, Quantity quantity)
+    public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
     {
         var existingItem = _lineItems.FirstOrDefault(x => x.ProductId == productId);
         if (existingItem is not null)
@@ -47,7 +47,7 @@ public class PickingNote(
         }
         else
         {
-            _lineItems.Add(new PickingLineItem(PickingLineItemId.New(), productId, quantity));
+            _lineItems.Add(new PickingLineItem(PickingLineItemId.New(), productId, productCode, productName, unit, quantity, manufactureName, note));
         }
     }
 

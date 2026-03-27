@@ -64,13 +64,13 @@ public class PickingNoteTests
         var quantity = new Quantity(10);
 
         // Act
-        pickingNote.AddItem(productId, quantity);
+        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", quantity, "NSX A", "Ghi chú");
 
         // Assert
         Assert.Single(pickingNote.LineItems);
         var item = pickingNote.LineItems[0];
         Assert.Equal(productId, item.ProductId);
-        Assert.Equal(quantity, item.RequestedQuantity);
+        Assert.Equal(quantity, item.Quantity);
     }
 
     /// <summary>
@@ -82,14 +82,14 @@ public class PickingNoteTests
         // Arrange
         var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001");
         var productId = ProductId.New();
-        pickingNote.AddItem(productId, new Quantity(10));
+        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(10), "NSX A", "Note 1");
 
         // Act
-        pickingNote.AddItem(productId, new Quantity(5));
+        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(5), "NSX A", "Note 2");
 
         // Assert
         Assert.Single(pickingNote.LineItems);
-        Assert.Equal(new Quantity(15), pickingNote.LineItems[0].RequestedQuantity);
+        Assert.Equal(new Quantity(15), pickingNote.LineItems[0].Quantity);
     }
 
     /// <summary>
