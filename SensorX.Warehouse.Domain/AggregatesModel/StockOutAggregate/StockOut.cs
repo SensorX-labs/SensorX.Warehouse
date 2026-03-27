@@ -9,7 +9,7 @@ public class StockOut(
     Code code,
     string description,
     DeliveryInfo deliveryInfo
-) : Entity<StockOutId>(id), IAggregateRoot
+) : Entity<StockOutId>(id), IAggregateRoot, ICreationTrackable
 {
     public Code Code { get; private set; } = code;
     public string Description { get; private set; } = description;
@@ -20,6 +20,8 @@ public class StockOut(
 
     private readonly List<StockOutItem> _lineItems = [];
     public IReadOnlyList<StockOutItem> LineItems => _lineItems.AsReadOnly();
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
     {

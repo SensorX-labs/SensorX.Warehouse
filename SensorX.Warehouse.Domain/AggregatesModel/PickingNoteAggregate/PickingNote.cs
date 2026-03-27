@@ -3,24 +3,35 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
-public class PickingNote(
-    PickingNoteId pickingNoteId,
-    Code code,
-    DocumentReference sourceDocument,
-    PickingStatus status,
-    string description,
-    DeliveryInfo deliveryInfo
-) : Entity<PickingNoteId>(pickingNoteId), IAggregateRoot
+public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrackable
 {
-    public Code Code { get; private set; } = code;
-    public DocumentReference SourceDocument { get; private set; } = sourceDocument;
-    public PickingStatus Status { get; private set; } = status;
-    public string Description { get; private set; } = description;
-    public DeliveryInfo DeliveryInfo { get; private set; } = deliveryInfo;
-    public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
+    public Code Code { get; private set; }
+    public DocumentReference SourceDocument { get; private set; }
+    public PickingStatus Status { get; private set; }
+    public string Description { get; private set; }
+    public DeliveryInfo DeliveryInfo { get; private set; }
 
     private readonly List<PickingLineItem> _lineItems = [];
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
+
+    public WarehouseId WarehouseId { get; init; } = WarehouseId.Default;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    private PickingNote(
+        PickingNoteId id,
+        Code code,
+        DocumentReference sourceDocument,
+        PickingStatus status,
+        string description,
+        DeliveryInfo deliveryInfo
+    ) : base(id)
+    {
+        Code = code;
+        SourceDocument = sourceDocument;
+        Status = status;
+        Description = description;
+        DeliveryInfo = deliveryInfo;
+    }
 
     public static PickingNote CreateForSalesOrder(Guid orderId, string noteCode, string description, DeliveryInfo deliveryInfo)
     {

@@ -12,7 +12,7 @@ public class StockIn(
     string createdBy,
     string deliveredBy,
     string warehouseKeeper
-) : Entity<StockInId>(id), IAggregateRoot
+) : Entity<StockInId>(id), IAggregateRoot, ICreationTrackable
 {
     public Code Code { get; private set; } = code;
     public string? TransferOrderCode { get; private set; } = transferOrderCode;
@@ -26,6 +26,7 @@ public class StockIn(
     private readonly List<StockInItem> _lineItems = [];
     public IReadOnlyList<StockInItem> LineItems => _lineItems.AsReadOnly();
 
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity)
     {
