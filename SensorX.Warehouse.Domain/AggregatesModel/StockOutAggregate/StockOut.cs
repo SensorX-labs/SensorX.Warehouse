@@ -8,12 +8,12 @@ public class StockOut(
     StockOutId id,
     Code code,
     string description,
-    DeliveryInfo deliveryInfo
+    DeliveryInfo? deliveryInfo
 ) : Entity<StockOutId>(id), IAggregateRoot, ICreationTrackable
 {
     public Code Code { get; private set; } = code;
     public string Description { get; private set; } = description;
-    public DeliveryInfo DeliveryInfo { get; private set; } = deliveryInfo;
+    public DeliveryInfo? DeliveryInfo { get; private set; } = deliveryInfo;
 
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
     public PickingNoteId? PickingNoteId { get; private set; }
