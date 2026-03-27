@@ -7,34 +7,42 @@ public class PickingNote(
     PickingNoteId pickingNoteId,
     Code code,
     DocumentReference sourceDocument,
-    PickingStatus status
+    PickingStatus status,
+    string description,
+    DeliveryInfo deliveryInfo
 ) : Entity<PickingNoteId>(pickingNoteId), IAggregateRoot
 {
     public Code Code { get; private set; } = code;
     public DocumentReference SourceDocument { get; private set; } = sourceDocument;
     public PickingStatus Status { get; private set; } = status;
+    public string Description { get; private set; } = description;
+    public DeliveryInfo DeliveryInfo { get; private set; } = deliveryInfo;
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
 
     private readonly List<PickingLineItem> _lineItems = [];
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
 
-    public static PickingNote CreateForSalesOrder(Guid orderId, string noteCode)
+    public static PickingNote CreateForSalesOrder(Guid orderId, string noteCode, string description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
             Code.From(noteCode),
             new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
-            PickingStatus.Pending
+            PickingStatus.Pending,
+            description,
+            deliveryInfo
         );
     }
 
-    public static PickingNote CreateForTransferOrder(Guid transferOrderId, string noteCode)
+    public static PickingNote CreateForTransferOrder(Guid transferOrderId, string noteCode, string description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
             Code.From(noteCode),
             new DocumentReference(DocumentType.TransferOrder, transferOrderId, noteCode),
-            PickingStatus.Pending
+            PickingStatus.Pending,
+            description,
+            deliveryInfo
         );
     }
 
