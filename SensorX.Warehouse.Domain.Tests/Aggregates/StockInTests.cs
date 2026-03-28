@@ -14,8 +14,9 @@ public class StockInTests
     {
         // Arrange
         var id = StockInId.New();
-        var code = "PN-001";
-        var transferOrderCode = "TO-001";
+        var code = Code.Create("PN");
+        var transferOrderId = TransferOrderId.New();
+        var transferOrderCode = Code.Create("TO");
         var description = "Nhập kho từ lệnh điều chuyển";
         var receivedDate = DateTimeOffset.Now;
         var createdBy = "Admin";
@@ -25,7 +26,8 @@ public class StockInTests
         // Act
         var stockIn = new StockIn(
             id,
-            Code.From(code),
+            code,
+            transferOrderId,
             transferOrderCode,
             description,
             receivedDate,
@@ -36,8 +38,8 @@ public class StockInTests
 
         // Assert
         Assert.Equal(id, stockIn.Id);
-        Assert.Equal(code, (string)stockIn.Code);
-        Assert.Equal(transferOrderCode, stockIn.TransferOrderCode);
+        Assert.Equal(code, (string)stockIn.Code!);
+        Assert.Equal(transferOrderCode, (string)stockIn.TransferOrderCode!);
         Assert.Equal(description, stockIn.Description);
         Assert.Equal(receivedDate, stockIn.ReceivedDate);
         Assert.Equal(createdBy, stockIn.CreatedBy);
@@ -56,19 +58,18 @@ public class StockInTests
         // Arrange
         var stockIn = CreateDefaultStockIn();
         var productId = ProductId.New();
-        var productCode = "P001";
         var productName = "Sản phẩm 1";
         var unit = "Cái";
         var quantity = new Quantity(10);
 
-        // Act
-        stockIn.AddItem(productId, productCode, productName, unit, quantity);
+        var pCode = Code.Create("P");
+        stockIn.AddItem(productId, pCode, productName, unit, quantity);
 
         // Assert
         Assert.Single(stockIn.LineItems);
         var item = stockIn.LineItems[0];
         Assert.Equal(productId, item.ProductId);
-        Assert.Equal(productCode, item.ProductCode);
+        Assert.Equal(pCode, item.ProductCode);
         Assert.Equal(productName, item.ProductName);
         Assert.Equal(unit, item.Unit);
         Assert.Equal(quantity, item.Quantity);
@@ -83,10 +84,10 @@ public class StockInTests
         // Arrange
         var stockIn = CreateDefaultStockIn();
         var productId = ProductId.New();
-        stockIn.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(10));
+        stockIn.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(10));
 
         // Act
-        stockIn.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(5));
+        stockIn.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(5));
 
         // Assert
         Assert.Single(stockIn.LineItems);
@@ -101,6 +102,7 @@ public class StockInTests
         return new StockIn(
             StockInId.New(),
             Code.Create("PN"),
+            null,
             null,
             "Description",
             DateTimeOffset.Now,

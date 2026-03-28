@@ -24,8 +24,7 @@ public class InventoryServiceTests
         return new InventoryItem(
             InventoryItemId.New(),
             productId,
-            WarehouseId.Default,
-            new WarehouseItemLocation(WarehouseId.Default, "Kho Hải Phòng", "1", "A", "R01"),
+            new WarehouseItemLocation("Kho Hải Phòng", "1", "A", "R01"),
             new Quantity(physical),
             new Quantity(allocated)
         );
@@ -39,13 +38,13 @@ public class InventoryServiceTests
     {
         // Arrange
         var productId = ProductId.New();
-        var productCode = "P001";
+        var productCode = Code.Create("P");
         var quantity = new Quantity(5);
-        
+
         var inventoryItem = CreateSampleInventoryItem(productId, 10, 5); // 10 physical, 5 allocated (from picking)
         var items = new List<InventoryItem> { inventoryItem };
 
-        var note = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN001", "Note 001", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
+        var note = PickingNote.CreateForSalesOrder(OrderId.New(), Code.Create("PN"), "Note 001", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
         note.AddItem(productId, productCode, "Product 1", "Unit", quantity, "Manufacture", "Note");
 
         // Act
@@ -69,8 +68,9 @@ public class InventoryServiceTests
         var productId = ProductId.New();
         var items = new List<InventoryItem>(); // Empty list
 
-        var note = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN001", "Note", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
-        note.AddItem(productId, "P001", "Product 1", "Unit", new Quantity(5), "Manufacturer", "Note");
+        var productCode = Code.Create("P");
+        var note = PickingNote.CreateForSalesOrder(OrderId.New(), Code.Create("PN"), "Note", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
+        note.AddItem(productId, productCode, "Product 1", "Unit", new Quantity(5), "Manufacturer", "Note");
 
         // Act & Assert
         Assert.Throws<DomainException>(() => _inventoryService.CreateStockOutFromPickingNote(items, note));
@@ -84,7 +84,6 @@ public class InventoryServiceTests
     {
         // Arrange
         var productId = ProductId.New();
-        var productCode = "P001";
         var quantity = new Quantity(5);
 
         var inventoryItem = CreateSampleInventoryItem(productId, 10, 0);
@@ -92,10 +91,9 @@ public class InventoryServiceTests
 
         var lineItems = new List<StockInLineRequest>
         {
-            new StockInLineRequest
-            {
+            new() {
                 ProductId = productId,
-                ProductCode = productCode,
+                ProductCode = Code.Create("P"),
                 ProductName = "Product 1",
                 Unit = "Unit",
                 Quantity = quantity
@@ -106,7 +104,8 @@ public class InventoryServiceTests
         var stockIn = _inventoryService.CreateStockIn(
             items,
             lineItems,
-            "TO001",
+            TransferOrderId.New(),
+            Code.Create("TO"),
             "Description",
             DateTimeOffset.Now,
             "Creator",
@@ -131,10 +130,9 @@ public class InventoryServiceTests
         var items = new List<InventoryItem>();
         var lineItems = new List<StockInLineRequest>
         {
-            new StockInLineRequest
-            {
+            new() {
                 ProductId = productId,
-                ProductCode = "P001",
+                ProductCode = Code.Create("P"),
                 ProductName = "Product 1",
                 Unit = "Unit",
                 Quantity = new Quantity(5)
@@ -142,7 +140,7 @@ public class InventoryServiceTests
         };
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => _inventoryService.CreateStockIn(items, lineItems, "TO", "Desc", DateTimeOffset.Now, "C", "D", "K"));
+        Assert.Throws<DomainException>(() => _inventoryService.CreateStockIn(items, lineItems, TransferOrderId.New(), Code.Create("TO"), "Desc", DateTimeOffset.Now, "C", "D", "K"));
     }
 
     /// <summary>
@@ -153,7 +151,6 @@ public class InventoryServiceTests
     {
         // Arrange
         var productId = ProductId.New();
-        var productCode = "P001";
         var quantity = new Quantity(5);
 
         var inventoryItem = CreateSampleInventoryItem(productId, 10, 0);
@@ -161,10 +158,9 @@ public class InventoryServiceTests
 
         var lineItems = new List<StockOutLineRequest>
         {
-            new StockOutLineRequest
-            {
+            new() {
                 ProductId = productId,
-                ProductCode = productCode,
+                ProductCode = Code.Create("P"),
                 ProductName = "Product 1",
                 Unit = "Unit",
                 Quantity = quantity,
@@ -190,13 +186,13 @@ public class InventoryServiceTests
     {
         // Arrange
         var productId = ProductId.New();
-        var productCode = "P001";
+        var productCode = Code.Create("P");
         var quantity = new Quantity(5);
 
         var inventoryItem = CreateSampleInventoryItem(productId, 10, 0);
         var items = new List<InventoryItem> { inventoryItem };
 
-        var note = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN001", "Note", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
+        var note = PickingNote.CreateForSalesOrder(OrderId.New(), Code.Create("PN"), "Note", new DeliveryInfo("Customer", "0987654321", "Address", "Company", "Tax123"));
         note.AddItem(productId, productCode, "Product 1", "Unit", quantity, "Manufacturer", "Note");
 
         // Act

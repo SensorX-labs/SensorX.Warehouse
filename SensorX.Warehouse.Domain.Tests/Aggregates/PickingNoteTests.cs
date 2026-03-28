@@ -14,12 +14,12 @@ public class PickingNoteTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var noteCode = "PN-SO-001";
+        var noteCode = Code.Create("PN");
         var description = "Ghi chú soạn hàng";
         var deliveryInfo = new DeliveryInfo("Người nhận", "0901234567", "Hà Nội", "Công ty X", "010203");
 
         // Act
-        var pickingNote = PickingNote.CreateForSalesOrder(orderId, noteCode, description, deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(orderId), noteCode, description, deliveryInfo);
 
         // Assert
         Assert.NotNull(pickingNote);
@@ -41,12 +41,12 @@ public class PickingNoteTests
     {
         // Arrange
         var transferOrderId = Guid.NewGuid();
-        var noteCode = "PN-TO-001";
+        var noteCode = Code.Create("PN");
         var description = "Điều chuyển nội bộ";
         var deliveryInfo = new DeliveryInfo("Kho B", "0987654321", "TP.HCM", "Chi nhánh 1", "001122");
 
         // Act
-        var pickingNote = PickingNote.CreateForTransferOrder(transferOrderId, noteCode, description, deliveryInfo);
+        var pickingNote = PickingNote.CreateForTransferOrder(new TransferOrderId(transferOrderId), noteCode, description, deliveryInfo);
 
         // Assert
         Assert.NotNull(pickingNote);
@@ -68,12 +68,12 @@ public class PickingNoteTests
     {
         // Arrange
         var deliveryInfo = new DeliveryInfo("Receiver", "000", "Address", "Company", "Tax");
-        var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001", "Desc", deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(Guid.NewGuid()), Code.Create("PN"), "Desc", deliveryInfo);
         var productId = ProductId.New();
         var quantity = new Quantity(10);
 
         // Act
-        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", quantity, "NSX A", "Ghi chú");
+        pickingNote.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", quantity, "NSX A", "Ghi chú");
 
         // Assert
         Assert.Single(pickingNote.LineItems);
@@ -90,12 +90,12 @@ public class PickingNoteTests
     {
         // Arrange
         var deliveryInfo = new DeliveryInfo("Receiver", "000", "Address", "Company", "Tax");
-        var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001", "Desc", deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(Guid.NewGuid()), Code.Create("PN"), "Desc", deliveryInfo);
         var productId = ProductId.New();
-        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(10), "NSX A", "Note 1");
+        pickingNote.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(10), "NSX A", "Note 1");
 
         // Act
-        pickingNote.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(5), "NSX A", "Note 2");
+        pickingNote.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(5), "NSX A", "Note 2");
 
         // Assert
         Assert.Single(pickingNote.LineItems);
@@ -110,7 +110,7 @@ public class PickingNoteTests
     {
         // Arrange
         var deliveryInfo = new DeliveryInfo("Receiver", "000", "Address", "Company", "Tax");
-        var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001", "Desc", deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(Guid.NewGuid()), Code.Create("PN"), "Desc", deliveryInfo);
 
         // Act
         pickingNote.StartPicking();
@@ -127,7 +127,7 @@ public class PickingNoteTests
     {
         // Arrange
         var deliveryInfo = new DeliveryInfo("Receiver", "000", "Address", "Company", "Tax");
-        var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001", "Desc", deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(Guid.NewGuid()), Code.Create("PN"), "Desc", deliveryInfo);
 
         // Act
         pickingNote.ConfirmCanceled();
@@ -144,7 +144,7 @@ public class PickingNoteTests
     {
         // Arrange
         var deliveryInfo = new DeliveryInfo("Receiver", "000", "Address", "Company", "Tax");
-        var pickingNote = PickingNote.CreateForSalesOrder(Guid.NewGuid(), "PN-001", "Desc", deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new OrderId(Guid.NewGuid()), Code.Create("PN"), "Desc", deliveryInfo);
 
         // Act
         pickingNote.ConfirmCompleted();

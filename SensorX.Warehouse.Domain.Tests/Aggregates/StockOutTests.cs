@@ -51,7 +51,7 @@ public class StockOutTests
         // Arrange
         var stockOut = CreateDefaultStockOut();
         var productId = ProductId.New();
-        var productCode = "P001";
+        var productCode = Code.Create("P");
         var productName = "Sản phẩm 1";
         var unit = "Cái";
         var quantity = new Quantity(10);
@@ -82,10 +82,10 @@ public class StockOutTests
         // Arrange
         var stockOut = CreateDefaultStockOut();
         var productId = ProductId.New();
-        stockOut.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(10), "NSX A", "Note 1");
+        stockOut.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(10), "NSX A", "Note 1");
 
         // Act
-        stockOut.AddItem(productId, "P001", "Sản phẩm 1", "Cái", new Quantity(5), "NSX A", "Note 2");
+        stockOut.AddItem(productId, Code.Create("P"), "Sản phẩm 1", "Cái", new Quantity(5), "NSX A", "Note 2");
 
         // Assert
         Assert.Single(stockOut.LineItems);
