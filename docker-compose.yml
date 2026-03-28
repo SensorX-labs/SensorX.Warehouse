@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sensorx_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sk1234
+      POSTGRES_DB: SensorX_Warehouse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: sensorx_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@sensorx.com  # Email đăng nhập web
+      PGADMIN_DEFAULT_PASSWORD: admin           # Mật khẩu đăng nhập web
+    ports:
+      - "8080:80"                               # Truy cập qua localhost:8080
+
+volumes:
+  postgres_data:
