@@ -3,24 +3,37 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 
-public class StockIn(
-    StockInId id,
-    Code code,
-    Code? transferOrderCode,
-    string description,
-    DateTimeOffset receivedDate,
-    string createdBy,
-    string deliveredBy,
-    string warehouseKeeper
-) : Entity<StockInId>(id), IAggregateRoot, ICreationTrackable
+public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
 {
-    public Code Code { get; private set; } = code;
-    public Code? TransferOrderCode { get; private set; } = transferOrderCode;
-    public string Description { get; private set; } = description;
-    public DateTimeOffset ReceivedDate { get; private set; } = receivedDate;
-    public string CreatedBy { get; private set; } = createdBy;
-    public string DeliveredBy { get; private set; } = deliveredBy;
-    public string WarehouseKeeper { get; private set; } = warehouseKeeper;
+    private StockIn() : base() { }
+
+    public StockIn(
+        StockInId id,
+        Code code,
+        Code? transferOrderCode,
+        string description,
+        DateTimeOffset receivedDate,
+        string createdBy,
+        string deliveredBy,
+        string warehouseKeeper
+    ) : base(id)
+    {
+        Code = code;
+        TransferOrderCode = transferOrderCode;
+        Description = description;
+        ReceivedDate = receivedDate;
+        CreatedBy = createdBy;
+        DeliveredBy = deliveredBy;
+        WarehouseKeeper = warehouseKeeper;
+    }
+
+    public Code Code { get; private set; } = null!;
+    public Code? TransferOrderCode { get; private set; }
+    public string Description { get; private set; } = null!;
+    public DateTimeOffset ReceivedDate { get; private set; }
+    public string CreatedBy { get; private set; } = null!;
+    public string DeliveredBy { get; private set; } = null!;
+    public string WarehouseKeeper { get; private set; } = null!;
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
 
     private readonly List<StockInItem> _lineItems = [];

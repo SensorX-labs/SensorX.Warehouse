@@ -4,16 +4,25 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 
-public class StockOut(
-    StockOutId id,
-    Code code,
-    string? description,
-    DeliveryInfo? deliveryInfo
-) : Entity<StockOutId>(id), IAggregateRoot, ICreationTrackable
+public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
 {
-    public Code Code { get; private set; } = code;
-    public string? Description { get; private set; } = description;
-    public DeliveryInfo? DeliveryInfo { get; private set; } = deliveryInfo;
+    private StockOut() : base() { }
+
+    public StockOut(
+        StockOutId id,
+        Code code,
+        string? description,
+        DeliveryInfo? deliveryInfo
+    ) : base(id)
+    {
+        Code = code;
+        Description = description;
+        DeliveryInfo = deliveryInfo;
+    }
+
+    public Code Code { get; private set; } = null!;
+    public string? Description { get; private set; }
+    public DeliveryInfo? DeliveryInfo { get; private set; }
 
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
     public PickingNoteId? PickingNoteId { get; private set; }

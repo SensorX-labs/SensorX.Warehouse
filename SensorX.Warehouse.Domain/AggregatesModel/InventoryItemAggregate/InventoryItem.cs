@@ -4,18 +4,28 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 
-public class InventoryItem(
-    InventoryItemId inventoryItemId,
-    ProductId productId,
-    WarehouseItemLocation warehouseItemLocation,
-    Quantity physicalQuantity,
-    Quantity allocatedQuantity
-) : Entity<InventoryItemId>(inventoryItemId), IAggregateRoot, ICreationTrackable, IUpdateTrackable
+public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationTrackable, IUpdateTrackable
 {
-    public ProductId ProductId { get; private set; } = productId;
-    public Quantity PhysicalQuantity { get; private set; } = physicalQuantity;
-    public Quantity AllocatedQuantity { get; private set; } = allocatedQuantity;
-    public WarehouseItemLocation? WarehouseItemLocation { get; private set; } = warehouseItemLocation;
+    private InventoryItem() : base() { }
+
+    public InventoryItem(
+        InventoryItemId id,
+        ProductId productId,
+        WarehouseItemLocation? warehouseItemLocation,
+        Quantity physicalQuantity,
+        Quantity allocatedQuantity
+    ) : base(id)
+    {
+        ProductId = productId;
+        WarehouseItemLocation = warehouseItemLocation;
+        PhysicalQuantity = physicalQuantity;
+        AllocatedQuantity = allocatedQuantity;
+    }
+
+    public ProductId ProductId { get; private set; } = null!;
+    public Quantity PhysicalQuantity { get; private set; } = null!;
+    public Quantity AllocatedQuantity { get; private set; } = null!;
+    public WarehouseItemLocation? WarehouseItemLocation { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? UpdatedAt { get; set; }

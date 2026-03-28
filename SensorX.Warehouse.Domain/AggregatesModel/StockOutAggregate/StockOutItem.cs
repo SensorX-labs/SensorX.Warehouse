@@ -3,24 +3,37 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 
-public class StockOutItem(
-    StockOutItemId id,
-    ProductId productId,
-    Code productCode,
-    string productName,
-    string unit,
-    Quantity quantity,
-    string manufactureName,
-    string? note
-) : Entity<StockOutItemId>(id)
+public class StockOutItem : Entity<StockOutItemId>
 {
-    public ProductId ProductId { get; private set; } = productId;
-    public Code ProductCode { get; private set; } = productCode;
-    public string ProductName { get; private set; } = productName;
-    public string Unit { get; private set; } = unit;
-    public Quantity Quantity { get; private set; } = quantity;
-    public string ManufactureName { get; private set; } = manufactureName;
-    public string? Note { get; private set; } = note;
+    private StockOutItem() : base() { }
+
+    public StockOutItem(
+        StockOutItemId id,
+        ProductId productId,
+        Code productCode,
+        string productName,
+        string unit,
+        Quantity quantity,
+        string manufactureName,
+        string? note
+    ) : base(id)
+    {
+        ProductId = productId;
+        ProductCode = productCode;
+        ProductName = productName;
+        Unit = unit;
+        Quantity = quantity;
+        ManufactureName = manufactureName;
+        Note = note;
+    }
+
+    public ProductId ProductId { get; private set; } = null!;
+    public Code ProductCode { get; private set; } = null!;
+    public string ProductName { get; private set; } = null!;
+    public string Unit { get; private set; } = null!;
+    public Quantity Quantity { get; private set; } = null!;
+    public string ManufactureName { get; private set; } = null!;
+    public string? Note { get; private set; }
 
     public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }

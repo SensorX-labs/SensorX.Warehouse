@@ -1,9 +1,12 @@
 namespace SensorX.Warehouse.Domain.SeedWork
 {
-    public abstract class Entity<TId>(TId id) : IEquatable<Entity<TId>>, IHasDomainEvents where TId : VoId
+    public abstract class Entity<TId> : IEquatable<Entity<TId>>, IHasDomainEvents where TId : VoId
     {
+        protected Entity() { }
+        protected Entity(TId id) => Id = id;
+
         private int? _requestedHashCode;
-        public TId Id { get; init; } = id;
+        public TId Id { get; init; } = null!;
 
         private readonly List<IDomainEvent> _domainEvents = [];
         public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();

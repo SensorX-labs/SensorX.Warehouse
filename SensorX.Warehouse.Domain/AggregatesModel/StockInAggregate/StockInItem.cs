@@ -3,20 +3,31 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 
-public class StockInItem(
-    StockInItemId id,
-    ProductId productId,
-    Code productCode,
-    string productName,
-    string unit,
-    Quantity quantity
-) : Entity<StockInItemId>(id)
+public class StockInItem : Entity<StockInItemId>
 {
-    public ProductId ProductId { get; private set; } = productId;
-    public Code ProductCode { get; private set; } = productCode;
-    public string ProductName { get; private set; } = productName;
-    public string Unit { get; private set; } = unit;
-    public Quantity Quantity { get; private set; } = quantity;
+    private StockInItem() : base() { }
+
+    public StockInItem(
+        StockInItemId id,
+        ProductId productId,
+        Code productCode,
+        string productName,
+        string unit,
+        Quantity quantity
+    ) : base(id)
+    {
+        ProductId = productId;
+        ProductCode = productCode;
+        ProductName = productName;
+        Unit = unit;
+        Quantity = quantity;
+    }
+
+    public ProductId ProductId { get; private set; } = null!;
+    public Code ProductCode { get; private set; } = null!;
+    public string ProductName { get; private set; } = null!;
+    public string Unit { get; private set; } = null!;
+    public Quantity Quantity { get; private set; } = null!;
 
     public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }

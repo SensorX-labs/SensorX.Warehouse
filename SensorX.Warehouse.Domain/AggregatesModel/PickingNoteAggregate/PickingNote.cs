@@ -5,17 +5,19 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrackable
 {
-    public Code Code { get; private set; }
-    public DocumentReference SourceDocument { get; private set; }
+    public Code Code { get; private set; } = null!;
+    public DocumentReference SourceDocument { get; private set; } = null!;
     public PickingStatus Status { get; private set; }
     public string? Description { get; private set; }
-    public DeliveryInfo DeliveryInfo { get; private set; }
+    public DeliveryInfo DeliveryInfo { get; private set; } = null!;
 
     private readonly List<PickingLineItem> _lineItems = [];
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
 
     public WarehouseId WarehouseId { get; init; } = WarehouseId.Default;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    private PickingNote() : base() { }
 
     private PickingNote(
         PickingNoteId id,
