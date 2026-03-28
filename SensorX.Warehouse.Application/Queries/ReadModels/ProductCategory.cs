@@ -4,8 +4,8 @@ namespace SensorX.Warehouse.Application.Queries.ReadModels;
 
 public class ProductCategory
 {
-    public required CategoryId Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Name { get; set; }
-    public CategoryId? ParentId { get; set; }
+    public Guid? ParentId { get; set; }
     public string? Description { get; set; }
 }
