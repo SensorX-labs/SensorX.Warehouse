@@ -7,17 +7,15 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 public class InventoryItem(
     InventoryItemId inventoryItemId,
     ProductId productId,
-    WarehouseId warehouseId,
     WarehouseItemLocation warehouseItemLocation,
     Quantity physicalQuantity,
     Quantity allocatedQuantity
 ) : Entity<InventoryItemId>(inventoryItemId), IAggregateRoot, ICreationTrackable, IUpdateTrackable
 {
     public ProductId ProductId { get; private set; } = productId;
-    public WarehouseId WarehouseId { get; private set; } = warehouseId;
-    public WarehouseItemLocation WarehouseItemLocation { get; private set; } = warehouseItemLocation;
     public Quantity PhysicalQuantity { get; private set; } = physicalQuantity;
     public Quantity AllocatedQuantity { get; private set; } = allocatedQuantity;
+    public WarehouseItemLocation? WarehouseItemLocation { get; private set; } = warehouseItemLocation;
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? UpdatedAt { get; set; }

@@ -8,6 +8,7 @@ using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.Services;
 
+#pragma warning disable CA1822 // Mark members as static
 public class InventoryService
 {
     /// <summary>
@@ -49,7 +50,8 @@ public class InventoryService
     public StockIn CreateStockIn(
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
-        string? transferOrderCode,
+        TransferOrderId? transferOrderId,
+        Code? transferOrderCode,
         string description,
         DateTimeOffset receivedDate,
         string createdBy,
@@ -60,6 +62,7 @@ public class InventoryService
         var stockIn = new StockIn(
             StockInId.New(),
             Code.Create("PN"),
+            transferOrderId,
             transferOrderCode,
             description,
             receivedDate,
@@ -127,4 +130,5 @@ public class InventoryService
             inventoryItem.Allocate(item.Quantity);
         }
     }
-}
+}
+#pragma warning restore CA1822

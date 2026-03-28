@@ -4,7 +4,7 @@ using SensorX.Warehouse.WebApi.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddServices();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();

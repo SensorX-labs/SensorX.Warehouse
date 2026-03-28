@@ -6,7 +6,7 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 public class StockOutItem(
     StockOutItemId id,
     ProductId productId,
-    string productCode,
+    Code productCode,
     string productName,
     string unit,
     Quantity quantity,
@@ -15,7 +15,7 @@ public class StockOutItem(
 ) : Entity<StockOutItemId>(id)
 {
     public ProductId ProductId { get; private set; } = productId;
-    public string ProductCode { get; private set; } = productCode;
+    public Code ProductCode { get; private set; } = productCode;
     public string ProductName { get; private set; } = productName;
     public string Unit { get; private set; } = unit;
     public Quantity Quantity { get; private set; } = quantity;

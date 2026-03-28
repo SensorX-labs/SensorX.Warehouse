@@ -6,7 +6,8 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 public class StockIn(
     StockInId id,
     Code code,
-    string? transferOrderCode,
+    TransferOrderId? transferOrderId,
+    Code? transferOrderCode,
     string description,
     DateTimeOffset receivedDate,
     string createdBy,
@@ -15,7 +16,8 @@ public class StockIn(
 ) : Entity<StockInId>(id), IAggregateRoot, ICreationTrackable
 {
     public Code Code { get; private set; } = code;
-    public string? TransferOrderCode { get; private set; } = transferOrderCode;
+    public TransferOrderId? TransferOrderId { get; private set; } = transferOrderId;
+    public Code? TransferOrderCode { get; private set; } = transferOrderCode;
     public string Description { get; private set; } = description;
     public DateTimeOffset ReceivedDate { get; private set; } = receivedDate;
     public string CreatedBy { get; private set; } = createdBy;
@@ -28,7 +30,7 @@ public class StockIn(
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity)
+    public void AddItem(ProductId productId, Code productCode, string productName, string unit, Quantity quantity)
     {
         var existingItem = _lineItems.FirstOrDefault(x => x.ProductId == productId);
         if (existingItem is not null)

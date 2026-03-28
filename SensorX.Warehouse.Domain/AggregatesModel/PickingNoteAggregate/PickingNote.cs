@@ -8,7 +8,7 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     public Code Code { get; private set; }
     public DocumentReference SourceDocument { get; private set; }
     public PickingStatus Status { get; private set; }
-    public string Description { get; private set; }
+    public string? Description { get; private set; }
     public DeliveryInfo DeliveryInfo { get; private set; }
 
     private readonly List<PickingLineItem> _lineItems = [];
@@ -22,7 +22,7 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         Code code,
         DocumentReference sourceDocument,
         PickingStatus status,
-        string description,
+        string? description,
         DeliveryInfo deliveryInfo
     ) : base(id)
     {
@@ -33,11 +33,11 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         DeliveryInfo = deliveryInfo;
     }
 
-    public static PickingNote CreateForSalesOrder(Guid orderId, string noteCode, string description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForSalesOrder(OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
-            Code.From(noteCode),
+            noteCode,
             new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
             PickingStatus.Pending,
             description,
@@ -45,11 +45,11 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         );
     }
 
-    public static PickingNote CreateForTransferOrder(Guid transferOrderId, string noteCode, string description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForTransferOrder(TransferOrderId transferOrderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
-            Code.From(noteCode),
+            noteCode,
             new DocumentReference(DocumentType.TransferOrder, transferOrderId, noteCode),
             PickingStatus.Pending,
             description,
@@ -57,7 +57,7 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         );
     }
 
-    public void AddItem(ProductId productId, string productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
+    public void AddItem(ProductId productId, Code productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
     {
         var existingItem = _lineItems.FirstOrDefault(x => x.ProductId == productId);
         if (existingItem is not null)
