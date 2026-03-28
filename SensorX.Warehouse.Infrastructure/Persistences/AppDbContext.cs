@@ -1,4 +1,5 @@
 using MediatR;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SensorX.Warehouse.Application.Common.DomainEvent;
 using SensorX.Warehouse.Domain.SeedWork;
@@ -17,29 +18,39 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator medi
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var result = await base.SaveChangesAsync(cancellationToken);
-        var entities = ChangeTracker.Entries<IHasDomainEvents>()
-            .Where(e => e.Entity.DomainEvents.Count > 0)
-            .Select(e => e.Entity)
-            .ToList();
-
-        foreach (var entity in entities)
+        while (true)
         {
-            var domainEvents = entity.DomainEvents.ToArray(); // sao chép các domain event ra mảng để tránh việc thay đổi collection trong quá trình lặp
-            foreach (var domainEvent in domainEvents)
-            {
-                var notification = (INotification)Activator.CreateInstance(
-                    typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()), //tạo instance của DomainEventNotification<type>
-                    domainEvent // truyền domainEvent vào constructor của DomainEventNotification<type>
-                )!;
+            var entitiesWithEvents = ChangeTracker.Entries<IHasDomainEvents>()
+                .Select(e => e.Entity)
+                .Where(e => e.DomainEvents.Count > 0)
+                .ToList();
 
-                await _mediator.Publish(notification, cancellationToken);
+            if (entitiesWithEvents.Count == 0) break;
+
+            foreach (var entity in entitiesWithEvents)
+            {
+                var domainEvents = entity.DomainEvents.ToArray();
+                entity.ClearDomainEvents();
+
+                foreach (var domainEvent in domainEvents)
+                {
+                    var notification = (INotification)Activator.CreateInstance(
+                        typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()),
+                        domainEvent
+                    )!;
+
+                    await _mediator.Publish(notification, cancellationToken);
+                }
             }
-            entity.ClearDomainEvents(); // xóa hết domain event sau khi đã xử lý xong
         }
-        return result;
+
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }
