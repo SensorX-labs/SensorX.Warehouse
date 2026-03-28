@@ -15,7 +15,6 @@ public class StockInTests
         // Arrange
         var id = StockInId.New();
         var code = Code.Create("PN");
-        var transferOrderId = TransferOrderId.New();
         var transferOrderCode = Code.Create("TO");
         var description = "Nhập kho từ lệnh điều chuyển";
         var receivedDate = DateTimeOffset.Now;
@@ -27,7 +26,6 @@ public class StockInTests
         var stockIn = new StockIn(
             id,
             code,
-            transferOrderId,
             transferOrderCode,
             description,
             receivedDate,
@@ -102,8 +100,7 @@ public class StockInTests
         return new StockIn(
             StockInId.New(),
             Code.Create("PN"),
-            null,
-            null,
+            Code.Create("TO"),
             "Description",
             DateTimeOffset.Now,
             "Creator",

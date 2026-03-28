@@ -20,10 +20,6 @@ public class StockInConfiguration : IEntityTypeConfiguration<StockIn>
         builder.Property(x => x.Code)
             .HasConversion(x => x.Value, x => Code.From(x));
 
-        builder.Property(x => x.TransferOrderId)
-            .HasConversion(x => x!.Value, x => new TransferOrderId(x))
-            .IsRequired(false);
-
         builder.Property(x => x.TransferOrderCode)
             .HasConversion(x => x!.Value, x => Code.From(x))
             .IsRequired(false);

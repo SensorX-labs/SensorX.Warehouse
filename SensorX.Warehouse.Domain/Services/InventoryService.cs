@@ -50,7 +50,6 @@ public class InventoryService
     public StockIn CreateStockIn(
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
-        TransferOrderId? transferOrderId,
         Code? transferOrderCode,
         string description,
         DateTimeOffset receivedDate,
@@ -62,7 +61,6 @@ public class InventoryService
         var stockIn = new StockIn(
             StockInId.New(),
             Code.Create("PN"),
-            transferOrderId,
             transferOrderCode,
             description,
             receivedDate,

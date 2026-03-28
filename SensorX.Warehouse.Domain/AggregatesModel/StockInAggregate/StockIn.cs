@@ -6,7 +6,6 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 public class StockIn(
     StockInId id,
     Code code,
-    TransferOrderId? transferOrderId,
     Code? transferOrderCode,
     string description,
     DateTimeOffset receivedDate,
@@ -16,7 +15,6 @@ public class StockIn(
 ) : Entity<StockInId>(id), IAggregateRoot, ICreationTrackable
 {
     public Code Code { get; private set; } = code;
-    public TransferOrderId? TransferOrderId { get; private set; } = transferOrderId;
     public Code? TransferOrderCode { get; private set; } = transferOrderCode;
     public string Description { get; private set; } = description;
     public DateTimeOffset ReceivedDate { get; private set; } = receivedDate;

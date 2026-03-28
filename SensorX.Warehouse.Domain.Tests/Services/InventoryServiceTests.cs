@@ -104,7 +104,6 @@ public class InventoryServiceTests
         var stockIn = _inventoryService.CreateStockIn(
             items,
             lineItems,
-            TransferOrderId.New(),
             Code.Create("TO"),
             "Description",
             DateTimeOffset.Now,
@@ -140,7 +139,7 @@ public class InventoryServiceTests
         };
 
         // Act & Assert
-        Assert.Throws<DomainException>(() => _inventoryService.CreateStockIn(items, lineItems, TransferOrderId.New(), Code.Create("TO"), "Desc", DateTimeOffset.Now, "C", "D", "K"));
+        Assert.Throws<DomainException>(() => _inventoryService.CreateStockIn(items, lineItems, Code.Create("TO"), "Desc", DateTimeOffset.Now, "C", "D", "K"));
     }
 
     /// <summary>
