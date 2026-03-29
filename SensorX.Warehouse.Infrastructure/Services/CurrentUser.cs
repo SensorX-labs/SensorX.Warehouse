@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using SensorX.Warehouse.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
+using SensorX.Warehouse.Application.Common.Interfaces;
 
 namespace SensorX.Warehouse.Infrastructure.Services;
 
@@ -8,12 +8,12 @@ public class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUse
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public int? UserId
+    public Guid? UserId
     {
         get
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : null;
+            return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var id) ? id : null;
         }
     }
 

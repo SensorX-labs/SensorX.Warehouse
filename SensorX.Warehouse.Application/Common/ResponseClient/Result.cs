@@ -18,8 +18,8 @@ namespace SensorX.Warehouse.Application.Common.ResponseClient
             Error = error;
         }
 
-        public static Result<T> Success(T value) => new Result<T>(true, value, null);
-        public static Result<T> Failure(string error) => new Result<T>(false, default, error);
+        public static Result<T> Success(T value) => new(true, value, null);
+        public static Result<T> Failure(string error) => new(false, default, error);
         public static implicit operator bool(Result<T>? result) => result is not null && result.IsSuccess;
     }
 
@@ -39,8 +39,8 @@ namespace SensorX.Warehouse.Application.Common.ResponseClient
             Error = error;
         }
 
-        public static Result Success() => new Result(true, null);
-        public static Result Failure(string error) => new Result(false, error);
+        public static Result Success() => new(true, null);
+        public static Result Failure(string error) => new(false, error);
         public static implicit operator bool(Result? result) => result is not null && result.IsSuccess;
     }
 }
