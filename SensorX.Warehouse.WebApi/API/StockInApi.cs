@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SensorX.Warehouse.Application.Commands.CreateStockIn;
+using SensorX.Warehouse.Application.Common.ResponseClient;
 
 
 namespace WebApi.API
@@ -20,9 +22,8 @@ namespace WebApi.API
             [FromServices] IMediator mediator
         )
         {
-            var command = new UpdateProfileCommand(id, request.Name, request.UrlAvatar);
-            Result result = await mediator.Send(command);
+            Result<Guid> result = await mediator.Send(request);
             return result ? TypedResults.Ok() : TypedResults.BadRequest(result.Error);
         }
-
+    }
 }

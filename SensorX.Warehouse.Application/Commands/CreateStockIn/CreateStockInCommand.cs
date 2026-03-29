@@ -1,8 +1,9 @@
 using MediatR;
+using SensorX.Warehouse.Application.Common.ResponseClient;
 
 namespace SensorX.Warehouse.Application.Commands.CreateStockIn;
 
-public class CreateStockInCommand : IRequest<Guid>
+public class CreateStockInCommand : IRequest<Result<Guid>>
 {
     public string? TransferOrderCode { get; set; }
     public required string DevliveredBy { get; set; }

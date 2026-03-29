@@ -8,12 +8,12 @@ public class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUse
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public int? UserId
+    public Guid? UserId
     {
         get
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            return userIdClaim != null && int.TryParse(userIdClaim.Value, out var id) ? id : null;
+            return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var id) ? id : null;
         }
     }
 
