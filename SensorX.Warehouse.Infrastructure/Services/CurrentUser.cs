@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using SensorX.Warehouse.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
+using SensorX.Warehouse.Application.Common.Interfaces;
 
 namespace SensorX.Warehouse.Infrastructure.Services;
 

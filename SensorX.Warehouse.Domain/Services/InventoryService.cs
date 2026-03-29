@@ -47,7 +47,7 @@ public class InventoryService
     /// <summary>
     /// Tạo phiếu nhập kho (StockIn) và cập nhật số lượng tồn kho vật lý.
     /// </summary>
-    public async Task<StockIn> CreateStockIn(
+    public StockIn CreateStockIn(
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
         Code? transferOrderCode,

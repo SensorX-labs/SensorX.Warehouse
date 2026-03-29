@@ -33,7 +33,7 @@ public class CreateStockInHandler(
         var transferOrderCode = request.TransferOrderCode != null ? Code.From(request.TransferOrderCode) : null;
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
-        var stockIn = await _inventoryService.CreateStockIn(
+        var stockIn = _inventoryService.CreateStockIn(
             inventoryItems,
             lineItems,
             transferOrderCode,
