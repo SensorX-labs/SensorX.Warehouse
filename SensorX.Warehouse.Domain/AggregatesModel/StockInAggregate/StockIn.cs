@@ -11,7 +11,7 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
         StockInId id,
         Code code,
         Code? transferOrderCode,
-        string description,
+        string? description,
         DateTimeOffset receivedDate,
         string createdBy,
         string deliveredBy,
@@ -29,7 +29,7 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
 
     public Code Code { get; private set; } = null!;
     public Code? TransferOrderCode { get; private set; }
-    public string Description { get; private set; } = null!;
+    public string? Description { get; private set; }
     public DateTimeOffset ReceivedDate { get; private set; }
     public string CreatedBy { get; private set; } = null!;
     public string DeliveredBy { get; private set; } = null!;
