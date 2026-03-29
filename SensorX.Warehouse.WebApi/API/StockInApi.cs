@@ -1,9 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SensorX.Warehouse.Application.Commands.CreateStockIn;
+using SensorX.Warehouse.Application.Common.ResponseClient;
 
-
-namespace WebApi.API
+namespace SensorX.Warehouse.WebApi.API
 {
     public static class StockInApi
     {
@@ -15,14 +16,13 @@ namespace WebApi.API
             return api;
         }
 
-        private static async Task<Results<Ok, BadRequest<string>, ProblemHttpResult>> CreateStockIn(
-            [FromBody] CreateStockInCommand request,
+        private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreateStockIn(
+            [FromBody] CreateStockInCommand command,
             [FromServices] IMediator mediator
         )
         {
-            var command = new UpdateProfileCommand(id, request.Name, request.UrlAvatar);
-            Result result = await mediator.Send(command);
-            return result ? TypedResults.Ok() : TypedResults.BadRequest(result.Error);
+            Result<Guid> result = await mediator.Send(command);
+            return result ? TypedResults.Ok(result.Value) : TypedResults.BadRequest(result.Error);
         }
-
+    }
 }
