@@ -1,6 +1,7 @@
 using MediatR;
 using SensorX.Warehouse.Application.Common.ResponseClient;
 using SensorX.Warehouse.Domain.SeedWork;
+
 namespace SensorX.Warehouse.Application.Commands.CreateStockIn;
 
 public class CreateStockInCommand : IRequest<Result<Guid>>

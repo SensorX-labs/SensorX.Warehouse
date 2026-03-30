@@ -35,15 +35,15 @@ public class CreateStockInHandler(
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         var stockIn = _inventoryService.CreateStockIn(
-             inventoryItems,
-             lineItems,
-             transferOrderCode,
-             request.Description,
-             DateTimeOffset.Now,
-             _currentUser.Username!,
-             request.DevliveredBy,
-             request.WarehouseKeeper
-         );
+            inventoryItems,
+            lineItems,
+            transferOrderCode,
+            request.Description,
+            DateTimeOffset.Now,
+            _currentUser.Username!,
+            request.DevliveredBy,
+            request.WarehouseKeeper
+        );
 
         await _stockInRepository.Add(stockIn, cancellationToken);
         await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
