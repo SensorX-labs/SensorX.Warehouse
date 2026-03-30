@@ -46,6 +46,7 @@ namespace SensorX.Warehouse.Infrastructure.DI
                 // });
             });
 
+            // Dịch vụ hạ tầng kết nối
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();

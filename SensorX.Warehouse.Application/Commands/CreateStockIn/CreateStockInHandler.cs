@@ -30,6 +30,7 @@ public class CreateStockInHandler(
             Unit = x.Unit,
             Quantity = new Quantity(x.Quantity)
         }).ToList();
+
         var transferOrderCode = request.TransferOrderCode != null ? Code.From(request.TransferOrderCode) : null;
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
