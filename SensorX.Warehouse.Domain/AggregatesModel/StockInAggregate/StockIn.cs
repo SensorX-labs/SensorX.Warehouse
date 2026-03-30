@@ -1,3 +1,4 @@
+using SensorX.Warehouse.Domain.Events;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
@@ -25,6 +26,9 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
         CreatedBy = createdBy;
         DeliveredBy = deliveredBy;
         WarehouseKeeper = warehouseKeeper;
+
+        if (transferOrderCode != null)
+            AddDomainEvent(new StockInCreatedEvent(id.Value, transferOrderCode.Value));
     }
 
     public Code Code { get; private set; } = null!;

@@ -12,7 +12,7 @@ namespace SensorX.Warehouse.WebApi.API
         {
             var api = app.MapGroup("api/stockIn").WithTags("StockIn");
 
-            api.MapPut("/createStockIn", CreateStockIn).WithOpenApi();
+            api.MapPost("/createStockIn", CreateStockIn).WithOpenApi();
             return api;
         }
 

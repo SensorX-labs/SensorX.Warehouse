@@ -1,4 +1,5 @@
 using SensorX.Warehouse.Infrastructure.DI;
+using SensorX.Warehouse.WebApi.API;
 using SensorX.Warehouse.WebApi.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +32,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
@@ -45,5 +48,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapStockInApi();
+app.UseExceptionHandler();
 app.Run();
 

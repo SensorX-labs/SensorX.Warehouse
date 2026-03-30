@@ -1,7 +1,7 @@
-using MediatR;
 using MassTransit;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SensorX.Warehouse.Application.Common.DomainEvent;
+using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.SeedWork;
 
 namespace SensorX.Warehouse.Infrastructure.Persistences;
