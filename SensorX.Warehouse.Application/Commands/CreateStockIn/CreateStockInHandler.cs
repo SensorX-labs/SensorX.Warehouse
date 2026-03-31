@@ -7,6 +7,7 @@ using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.Services;
 using SensorX.Warehouse.Domain.Services.DTOs;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Application.Commands.CreateStockIn;

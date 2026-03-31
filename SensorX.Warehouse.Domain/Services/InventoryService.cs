@@ -6,7 +6,9 @@ using SensorX.Warehouse.Domain.Common.Exceptions;
 using SensorX.Warehouse.Domain.Services.DTOs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.SeedWork;
 namespace SensorX.Warehouse.Domain.Services;
+using SensorX.Warehouse.Domain.StrongIDs;
 
 #pragma warning disable CA1822 // Mark members as static
 public class InventoryService
@@ -130,3 +132,4 @@ public class InventoryService
     }
 }
 #pragma warning restore CA1822
+

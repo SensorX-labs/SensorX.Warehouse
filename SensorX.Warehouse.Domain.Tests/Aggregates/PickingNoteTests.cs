@@ -1,4 +1,5 @@
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 using Xunit;
 

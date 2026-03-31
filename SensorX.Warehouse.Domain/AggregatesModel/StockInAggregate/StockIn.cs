@@ -2,6 +2,7 @@ using SensorX.Warehouse.Domain.Events;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 
 public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
@@ -58,3 +59,4 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
         }
     }
 }
+
