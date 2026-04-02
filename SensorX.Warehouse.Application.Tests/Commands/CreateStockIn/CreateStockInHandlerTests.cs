@@ -1,16 +1,17 @@
 using Ardalis.Specification;
-using Moq;
 using FluentAssertions;
+using Moq;
 using SensorX.Warehouse.Application.Commands.CreateStockIn;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
-using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
-using SensorX.Warehouse.Domain.Services;
-using SensorX.Warehouse.Domain.SeedWork;
-using SensorX.Warehouse.Domain.ValueObjects;
-using SensorX.Warehouse.Domain.Services.DTOs;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specifications;
+using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.Events;
+using SensorX.Warehouse.Domain.SeedWork;
+using SensorX.Warehouse.Domain.Services;
+using SensorX.Warehouse.Domain.Services.DTOs;
+using SensorX.Warehouse.Domain.StrongIDs;
+using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Application.Tests.Commands.CreateStockIn;
 
@@ -86,7 +87,8 @@ public class CreateStockInHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        
+
+
         _stockInRepositoryMock.Verify(x => x.Add(It.IsAny<StockIn>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 

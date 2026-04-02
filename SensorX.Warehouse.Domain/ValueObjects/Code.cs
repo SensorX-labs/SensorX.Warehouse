@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using SensorX.Warehouse.Domain.Common.Exceptions;
-using SensorX.Warehouse.Domain.SeedWork;
 
 namespace SensorX.Warehouse.Domain.ValueObjects;
 

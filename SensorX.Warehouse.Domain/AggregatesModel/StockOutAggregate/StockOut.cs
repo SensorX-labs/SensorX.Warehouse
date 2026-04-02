@@ -2,6 +2,7 @@ using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 
 public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
@@ -47,3 +48,5 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
 
     public void SetPickingNoteId(PickingNoteId pickingNoteId) => PickingNoteId = pickingNoteId;
 }
+
+

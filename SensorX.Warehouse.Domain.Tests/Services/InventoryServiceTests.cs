@@ -5,6 +5,7 @@ using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 using SensorX.Warehouse.Domain.Common.Exceptions;
 using SensorX.Warehouse.Domain.Services;
 using SensorX.Warehouse.Domain.Services.DTOs;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 using Xunit;
 

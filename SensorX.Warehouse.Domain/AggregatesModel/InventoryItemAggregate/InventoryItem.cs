@@ -2,6 +2,7 @@ using SensorX.Warehouse.Domain.Common.Exceptions;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 
 public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationTrackable, IUpdateTrackable
@@ -71,3 +72,4 @@ public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationT
         return PhysicalQuantity - AllocatedQuantity;
     }
 }
+

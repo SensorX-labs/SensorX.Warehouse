@@ -19,3 +19,4 @@ public interface ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
 }
 
+

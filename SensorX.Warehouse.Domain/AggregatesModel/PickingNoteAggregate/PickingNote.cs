@@ -1,6 +1,7 @@
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrackable
@@ -78,3 +79,4 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
 
     public void ConfirmCompleted() => Status = PickingStatus.Completed;
 }
+

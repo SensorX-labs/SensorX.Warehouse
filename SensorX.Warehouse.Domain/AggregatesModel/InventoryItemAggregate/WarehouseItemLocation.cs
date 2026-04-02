@@ -1,5 +1,6 @@
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 
 public record WarehouseItemLocation(
@@ -11,3 +12,4 @@ public record WarehouseItemLocation(
 {
     public WarehouseId WarehouseId { get; init; } = WarehouseId.Default;
 }
+
