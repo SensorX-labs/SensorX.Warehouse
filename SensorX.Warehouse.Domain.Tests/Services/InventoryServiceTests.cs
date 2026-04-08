@@ -152,28 +152,27 @@ public class InventoryServiceTests
         // Arrange
         var productId = ProductId.New();
         var quantity = new Quantity(5);
+        var reason = "Adjust inventory";
 
         var inventoryItem = CreateSampleInventoryItem(productId, 10, 0);
-        var items = new List<InventoryItem> { inventoryItem };
 
-        var lineItems = new List<StockOutLineRequest>
+        var lineItem = new StockOutLineRequest
         {
-            new() {
-                ProductId = productId,
-                ProductCode = Code.Create("P"),
-                ProductName = "Product 1",
-                Unit = "Unit",
-                Quantity = quantity,
-                ManufactureName = "Manufacturer",
-                Note = "Note"
-            }
+            ProductId = productId,
+            ProductCode = Code.Create("P"),
+            ProductName = "Product 1",
+            Unit = "Unit",
+            Quantity = quantity,
+            ManufactureName = "Manufacturer",
+            Note = "Note"
         };
 
         // Act
-        var stockOut = _inventoryService.AdjustInventory(items, lineItems);
+        var stockOut = _inventoryService.AdjustInventory(inventoryItem, lineItem, reason);
 
         // Assert
         Assert.NotNull(stockOut);
+        Assert.Equal(reason, stockOut.Description);
         Assert.Single(stockOut.LineItems);
         Assert.Equal(5, (int)inventoryItem.PhysicalQuantity); // 10 - 5 = 5
     }

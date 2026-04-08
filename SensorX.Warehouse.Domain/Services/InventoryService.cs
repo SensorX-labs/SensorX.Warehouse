@@ -3,11 +3,11 @@ using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 using SensorX.Warehouse.Domain.Common.Exceptions;
+using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.Services.DTOs;
 using SensorX.Warehouse.Domain.ValueObjects;
-
-using SensorX.Warehouse.Domain.SeedWork;
 namespace SensorX.Warehouse.Domain.Services;
+
 using SensorX.Warehouse.Domain.StrongIDs;
 
 #pragma warning disable CA1822 // Mark members as static
@@ -89,27 +89,24 @@ public class InventoryService
     /// <summary>
     /// Điều chỉnh kho (xuất kho trực tiếp) và cập nhật số lượng tồn kho vật lý.
     /// </summary>
-    public StockOut AdjustInventory(List<InventoryItem> items, List<StockOutLineRequest> lineItems)
+    public StockOut AdjustInventory(InventoryItem inventoryItem, StockOutLineRequest lineItem, string reason)
     {
         var stockOut = new StockOut(
             StockOutId.New(),
             Code.Create("PX"),
-            "Điều chỉnh tồn kho",
+            reason,
             null
         );
-
-        var InventoryItems = items.ToDictionary(x => x.ProductId);
-        foreach (var item in lineItems)
-        {
-            stockOut.AddItem(item.ProductId, item.ProductCode, item.ProductName, item.Unit, item.Quantity, item.ManufactureName, item.Note);
-
-            if (!InventoryItems.TryGetValue(item.ProductId, out var inventoryItem))
-            {
-                throw new DomainException($"Inventory item not found for product {item.ProductCode}");
-            }
-            inventoryItem.ConfirmStockOut(item.Quantity);
-        }
-
+        stockOut.AddItem(
+            lineItem.ProductId,
+            lineItem.ProductCode,
+            lineItem.ProductName,
+            lineItem.Unit,
+            lineItem.Quantity,
+            lineItem.ManufactureName,
+            lineItem.Note
+        );
+        inventoryItem.ConfirmStockOut(lineItem.Quantity);
         return stockOut;
     }
 
