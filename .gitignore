@@ -8,7 +8,7 @@
 **/*.app
 **/*.so
 **/*.dylib
-appsettings.json
+# appsettings.json
 # MSBuild cache
 *.assets.cache
 
