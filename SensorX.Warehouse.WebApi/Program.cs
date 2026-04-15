@@ -1,11 +1,13 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SensorX.Warehouse.Infrastructure.DI;
-using SensorX.Warehouse.WebApi.API;
+using SensorX.Warehouse.Infrastructure.Persistences;
+using SensorX.Warehouse.WebApi;
 using SensorX.Warehouse.WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Cấu hình Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -31,11 +33,42 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Yêu cầu .NET tự động chuyển đổi giữa String và Enum
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+builder.Services.AddSwaggerGen(options =>
+{
+    options.UseInlineDefinitionsForEnums();
+});
 
 var app = builder.Build();
+
+var autoApplyMigration = builder.Configuration.GetValue("Migration:AutoApply", true);
+if (autoApplyMigration)
+{
+    const int maxMigrationRetries = 12;
+    for (var attempt = 1; attempt <= maxMigrationRetries; attempt++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex) when (attempt < maxMigrationRetries)
+        {
+            app.Logger.LogWarning(
+                ex,
+                "Data API migration attempt {Attempt}/{MaxRetries} failed. Retrying in 5 seconds...",
+                attempt,
+                maxMigrationRetries);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -48,7 +81,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStockInApi();
-app.UseExceptionHandler();
-app.Run();
+app.MapApi();
 
+app.Run();
