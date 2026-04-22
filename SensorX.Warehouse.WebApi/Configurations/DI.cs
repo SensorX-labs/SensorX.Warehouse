@@ -5,12 +5,13 @@ namespace SensorX.Warehouse.WebApi.Configurations
 {
     public static class DI
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             // MediatR - scan từ Assembly Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(Assembly.Load("SensorX.Warehouse.Application"));
+                cfg.LicenseKey = configuration["MediatR:LicenseKey"];
             });
 
             // Dịch vụ nghiệp vụ

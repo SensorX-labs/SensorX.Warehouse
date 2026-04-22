@@ -57,5 +57,10 @@ public class StockOutConfiguration : IEntityTypeConfiguration<StockOut>
             lineItem.Property(x => x.Quantity)
                 .HasConversion(x => x.Value, x => new Quantity(x));
         });
+
+        builder.HasOne<PickingNote>()
+            .WithOne()
+            .HasForeignKey<StockOut>(x => x.PickingNoteId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

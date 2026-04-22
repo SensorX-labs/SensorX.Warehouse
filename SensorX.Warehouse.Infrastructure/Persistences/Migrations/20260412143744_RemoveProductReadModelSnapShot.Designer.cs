@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SensorX.Warehouse.Infrastructure.Persistences;
@@ -11,9 +12,11 @@ using SensorX.Warehouse.Infrastructure.Persistences;
 namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260412143744_RemoveProductReadModelSnapShot")]
+    partial class RemoveProductReadModelSnapShot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,9 +310,6 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PickingNoteId")
-                        .IsUnique();
-
                     b.ToTable("StockOuts", (string)null);
                 });
 
@@ -527,11 +527,6 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 
             modelBuilder.Entity("SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate.StockOut", b =>
                 {
-                    b.HasOne("SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate.PickingNote", null)
-                        .WithOne()
-                        .HasForeignKey("SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate.StockOut", "PickingNoteId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.OwnsOne("SensorX.Warehouse.Domain.ValueObjects.DeliveryInfo", "DeliveryInfo", b1 =>
                         {
                             b1.Property<Guid>("StockOutId")
