@@ -1,8 +1,8 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Warehouse.Application.Commands.CreateStockIn;
-using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.WebApi.Extensions;
 
 namespace SensorX.Warehouse.WebApi.API
 {
@@ -16,13 +16,13 @@ namespace SensorX.Warehouse.WebApi.API
             return api;
         }
 
-        private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreateStockIn(
+        private static async Task<IResult> CreateStockIn(
             [FromBody] CreateStockInCommand command,
             [FromServices] IMediator mediator
         )
         {
-            Result<Guid> result = await mediator.Send(command);
-            return result ? TypedResults.Ok(result.Value) : TypedResults.BadRequest(result.Message);
+            var result = await mediator.Send(command);
+            return result.ToResult();
         }
     }
 }
