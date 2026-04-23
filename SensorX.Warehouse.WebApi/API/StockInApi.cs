@@ -22,7 +22,7 @@ namespace SensorX.Warehouse.WebApi.API
         )
         {
             Result<Guid> result = await mediator.Send(command);
-            return result ? TypedResults.Ok(result.Value) : TypedResults.BadRequest(result.Error);
+            return result ? TypedResults.Ok(result.Value) : TypedResults.BadRequest(result.Message);
         }
     }
 }

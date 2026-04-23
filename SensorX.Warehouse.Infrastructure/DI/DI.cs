@@ -48,6 +48,8 @@ namespace SensorX.Warehouse.Infrastructure.DI
 
             // Dịch vụ hạ tầng kết nối
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
+            services.AddScoped<IQueryExecutor, QueryExecutor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
 
