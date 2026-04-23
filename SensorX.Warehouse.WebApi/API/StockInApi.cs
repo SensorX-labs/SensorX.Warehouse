@@ -10,7 +10,7 @@ namespace SensorX.Warehouse.WebApi.API
     {
         public static RouteGroupBuilder MapStockInApi(this IEndpointRouteBuilder app)
         {
-            var api = app.MapGroup("api/stockIn").WithTags("StockIn");
+            var api = app.MapGroup("stockIn").WithTags("StockIn");
 
             api.MapPost("/createStockIn", CreateStockIn).WithOpenApi();
             return api;
