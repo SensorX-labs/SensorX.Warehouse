@@ -6,6 +6,7 @@ using SensorX.Warehouse.Infrastructure.DI;
 using SensorX.Warehouse.Infrastructure.Persistences;
 using SensorX.Warehouse.WebApi;
 using SensorX.Warehouse.WebApi.Configurations;
+using SensorX.Warehouse.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Cấu hình Authentication
@@ -96,6 +97,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseUserContext();
 app.UseAuthorization();
 
 app.MapApi();
