@@ -43,6 +43,19 @@ builder.Services.AddSwaggerGen(options =>
     options.UseInlineDefinitionsForEnums();
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 var autoApplyMigration = builder.Configuration.GetValue("Migration:AutoApply", true);
@@ -56,6 +69,10 @@ if (autoApplyMigration)
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.MigrateAsync();
+
+            // Seed fake data using Bogus
+            await BogusSeeder.SeedData(dbContext);
+
             break;
         }
         catch (Exception ex) when (attempt < maxMigrationRetries)
