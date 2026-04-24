@@ -28,8 +28,8 @@ public static class BogusSeeder
                     f.Random.Number(1, 10).ToString(),
                     f.Random.Number(1, 5).ToString()
                 );
-                var physicalQty = Quantity.Create(f.Random.Number(100, 1000));
-                var allocatedQty = Quantity.Create(f.Random.Number(0, 50));
+                var physicalQty = new Quantity(f.Random.Number(100, 1000));
+                var allocatedQty = new Quantity(f.Random.Number(0, 50));
 
                 return new InventoryItem(
                     id,
