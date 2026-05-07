@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Warehouse.Application.Commands.ApproveStockAdjustment;
 using SensorX.Warehouse.Application.Commands.CreateStockAdjustment;
 using SensorX.Warehouse.Application.Commands.RejectStockAdjustment;
-using SensorX.Warehouse.Application.Common.ResponseClient;
 using SensorX.Warehouse.Application.Queries.GetStockAdjustment;
 using SensorX.Warehouse.Application.Queries.StockAdjustments;
 using SensorX.Warehouse.Application.Common.Pagination;

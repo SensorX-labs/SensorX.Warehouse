@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Warehouse.Application.Commands.CreatePickingNote;
 using SensorX.Warehouse.Application.Commands.CreateStockOut;
 using SensorX.Warehouse.Application.Common.ResponseClient;
 using SensorX.Warehouse.Application.Queries.StockOuts;
@@ -15,26 +14,12 @@ public static class StockOutApi
     {
         var api = app.MapGroup("stockOut").WithTags("StockOut");
 
-        // Tạo phiếu soạn hàng (PickingNote)
-        api.MapPost("/createPickingNote", CreatePickingNote).WithOpenApi();
-
-        // Xác nhận xuất kho từ phiếu soạn hàng
+        // Tạo phiếu xuất kho
         api.MapPost("/createStockOut", CreateStockOut).WithOpenApi();
 
         api.MapGet("/list", GetStockOuts).WithOpenApi();
 
         return api;
-    }
-
-    private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreatePickingNote(
-        [FromBody] CreatePickingNoteCommand command,
-        [FromServices] IMediator mediator
-    )
-    {
-        Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
-            : TypedResults.BadRequest(result.Error);
     }
 
     private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreateStockOut(
