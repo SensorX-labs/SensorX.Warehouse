@@ -9,6 +9,9 @@ public static class Api
         var api = app.MapGroup("api");
 
         api.MapStockInApi();
+        api.MapPickingNoteApi();
+        api.MapStockOutApi();
+        api.MapStockAdjustmentApi();
 
         return api;
     }

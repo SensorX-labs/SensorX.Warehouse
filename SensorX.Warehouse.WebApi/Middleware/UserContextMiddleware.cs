@@ -10,17 +10,19 @@ public class UserContextMiddleware(RequestDelegate next)
     {
         var userIdHeader = context.Request.Headers["X-User-Id"].FirstOrDefault();
         var userRolesHeader = context.Request.Headers["X-User-Roles"].FirstOrDefault();
+        var userFullNameHeader = context.Request.Headers["X-User-FullName"].FirstOrDefault();
 
-        if (!string.IsNullOrEmpty(userIdHeader))
+        if (!string.IsNullOrEmpty(userIdHeader) || !string.IsNullOrEmpty(userFullNameHeader))
         {
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, userIdHeader)
+                new(ClaimTypes.NameIdentifier, userIdHeader ?? userFullNameHeader ?? "anonymous"),
+                new(ClaimTypes.Name, userFullNameHeader ?? userIdHeader ?? "anonymous")
             };
 
             if (!string.IsNullOrEmpty(userRolesHeader))
             {
-                claims.Add(new Claim(ClaimTypes.Role, userRolesHeader));
+                claims.Add(new Claim("role", userRolesHeader));
             }
 
             var identity = new ClaimsIdentity(claims, "Gateway");

@@ -25,13 +25,14 @@ public partial record Code
             throw new DomainException("Prefix cannot be empty.");
 
         var now = DateTime.UtcNow;
-        var code = $"{prefix.ToUpper()}-{now:yyMMdd}-{now:HHmmssfff}";
+        var ts = now.Ticks % 1000000000;
+        var code = $"{prefix.ToUpper()}-{now:yyMMdd}-{ts:D9}";
         return new Code(code);
     }
 
     public static implicit operator string(Code code) => code?.Value ?? string.Empty;
 
     public override string ToString() => Value;
-    [GeneratedRegex(@"^[A-Z]+-\d{6}-\d{9}$")]
+    [GeneratedRegex(@"^[A-Z0-9]+-\d{6}-\d{9}$")]
     private static partial Regex MyRegex();
 }

@@ -40,8 +40,8 @@ public class CreateStockInHandler(
             lineItems,
             transferOrderCode,
             request.Description,
-            DateTimeOffset.Now,
-            _currentUser.Username!,
+            DateTimeOffset.UtcNow,
+            _currentUser.Username ?? "unknown",
             request.DevliveredBy,
             request.WarehouseKeeper
         );

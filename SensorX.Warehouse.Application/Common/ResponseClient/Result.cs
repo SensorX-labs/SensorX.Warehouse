@@ -10,8 +10,8 @@ namespace SensorX.Warehouse.Application.Common.ResponseClient
         {
             if (isSuccess && error != null)
                 throw new InvalidOperationException();
-            if (!isSuccess && value != null)
-                throw new InvalidOperationException();
+if (!isSuccess && !EqualityComparer<T?>.Default.Equals(value, default))
+            throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
             Value = value;

@@ -67,6 +67,19 @@ public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationT
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    /// <summary>
+    /// Adjust physical quantity by delta (can be positive or negative).
+    /// Throws if resulting quantity would be negative.
+    /// </summary>
+    public void AdjustPhysicalQuantity(int delta)
+    {
+        var newValue = PhysicalQuantity.Value + delta;
+        if (newValue < 0)
+            throw new DomainException("Adjustment would result in negative physical quantity");
+        PhysicalQuantity = new Quantity(newValue);
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public int GetSalableQuantity()
     {
         return PhysicalQuantity - AllocatedQuantity;
