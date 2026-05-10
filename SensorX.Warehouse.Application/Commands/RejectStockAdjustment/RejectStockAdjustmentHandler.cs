@@ -13,7 +13,6 @@ namespace SensorX.Warehouse.Application.Commands.RejectStockAdjustment;
 
 public class RejectStockAdjustmentHandler(
     IRepository<StockAdjustment> _adjustmentRepository,
-    IRepository<InventoryItem> _inventoryItemRepository,
     IUnitOfWork _unitOfWork
 ) : IRequestHandler<RejectStockAdjustmentCommand, Result<Guid>>
 {
@@ -22,7 +21,7 @@ public class RejectStockAdjustmentHandler(
         // 1. Load adjustment
         var spec = new GetStockAdjustmentById(new StockAdjustmentId(request.Id));
         var adjustment = await _adjustmentRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (adjustment == null)
+        if (adjustment is null)
             return Result<Guid>.Failure("Adjustment not found");
 
         // 2. Validate status

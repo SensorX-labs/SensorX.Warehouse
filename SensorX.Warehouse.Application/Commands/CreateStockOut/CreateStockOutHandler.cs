@@ -26,7 +26,7 @@ public class CreateStockOutHandler(
         // 1. Get PickingNote by ID
         var spec = new GetPickingNoteById(new PickingNoteId(request.PickingNoteId));
         var pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (pickingNote == null)
+        if (pickingNote is null)
             return Result<Guid>.Failure("Picking note not found");
 
         // 2. Validate picking note is completed

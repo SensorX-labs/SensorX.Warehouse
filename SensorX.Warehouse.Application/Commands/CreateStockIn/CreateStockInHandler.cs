@@ -42,7 +42,7 @@ public class CreateStockInHandler(
             request.Description,
             DateTimeOffset.UtcNow,
             _currentUser.Username ?? "unknown",
-            request.DevliveredBy,
+            request.DeliveredBy,
             request.WarehouseKeeper
         );
 

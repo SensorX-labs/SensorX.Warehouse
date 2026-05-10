@@ -16,7 +16,7 @@ public class GetPickingNoteHandler(
     {
         var spec = new GetPickingNoteById(new PickingNoteId(request.PickingNoteId));
         var pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (pickingNote == null)
+        if (pickingNote is null)
             return Result<PickingNoteDto>.Failure("Picking note not found");
 
         var dto = new PickingNoteDto(

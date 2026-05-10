@@ -7,7 +7,7 @@ namespace SensorX.Warehouse.Application.Commands.CreateStockIn;
 public class CreateStockInCommand : IRequest<Result<Guid>>
 {
     public string? TransferOrderCode { get; set; }
-    public required string DevliveredBy { get; set; }
+    public required string DeliveredBy { get; set; }
     public required string WarehouseKeeper { get; set; }
     public string? Description { get; set; }
     public List<StockInItemCommand> Items { get; set; } = [];

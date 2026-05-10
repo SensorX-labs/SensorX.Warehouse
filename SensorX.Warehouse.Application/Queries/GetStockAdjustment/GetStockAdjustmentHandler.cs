@@ -16,7 +16,7 @@ public class GetStockAdjustmentHandler(
     {
         var spec = new GetStockAdjustmentById(new StockAdjustmentId(request.Id));
         var adjustment = await _adjustmentRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (adjustment == null)
+        if (adjustment is null)
             return Result<StockAdjustmentDto>.Failure("Adjustment not found");
 
         var dto = new StockAdjustmentDto(

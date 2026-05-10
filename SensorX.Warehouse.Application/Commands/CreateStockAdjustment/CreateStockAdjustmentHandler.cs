@@ -12,7 +12,6 @@ namespace SensorX.Warehouse.Application.Commands.CreateStockAdjustment;
 
 public class CreateStockAdjustmentHandler(
     IRepository<StockAdjustment> _adjustmentRepository,
-    IRepository<InventoryItem> _inventoryItemRepository,
     IUnitOfWork _unitOfWork
 ) : IRequestHandler<CreateStockAdjustmentCommand, Result<Guid>>
 {

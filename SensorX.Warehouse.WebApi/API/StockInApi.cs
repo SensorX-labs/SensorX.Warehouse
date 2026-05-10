@@ -16,6 +16,7 @@ namespace SensorX.Warehouse.WebApi.API
 
             api.MapPost("/createStockIn", CreateStockIn).WithOpenApi();
             api.MapGet("/list", GetStockIns).WithOpenApi();
+            api.MapGet("/{id:guid}", GetStockInById).WithOpenApi();
             return api;
         }
 
@@ -55,5 +56,16 @@ namespace SensorX.Warehouse.WebApi.API
             ? TypedResults.Ok(result.Value)
             : TypedResults.BadRequest(result.Error);
     }
+
+        private static async Task<Results<Ok<StockInDetailDto>, BadRequest<string>, ProblemHttpResult>> GetStockInById(
+            [FromRoute] Guid id,
+            [FromServices] IMediator mediator
+        )
+        {
+            var result = await mediator.Send(new GetStockInByIdQuery { Id = id });
+            return result.IsSuccess
+                ? TypedResults.Ok(result.Value)
+                : TypedResults.BadRequest(result.Error);
+        }
 }
 }

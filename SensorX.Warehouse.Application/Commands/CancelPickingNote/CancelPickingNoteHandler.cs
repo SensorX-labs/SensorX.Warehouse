@@ -23,7 +23,7 @@ public class CancelPickingNoteHandler(
         // 1. Retrieve picking note
         var spec = new GetPickingNoteById(new PickingNoteId(request.PickingNoteId));
         var pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (pickingNote == null)
+        if (pickingNote is null)
             return Result<Guid>.Failure("Picking note not found");
 
         // 2. Validate can cancel (Pending or Picking)

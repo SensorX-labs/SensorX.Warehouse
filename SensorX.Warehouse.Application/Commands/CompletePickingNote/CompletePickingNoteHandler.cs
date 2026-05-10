@@ -14,8 +14,7 @@ namespace SensorX.Warehouse.Application.Commands.CompletePickingNote;
 public class CompletePickingNoteHandler(
     IRepository<PickingNote> _pickingNoteRepository,
     IRepository<InventoryItem> _inventoryItemRepository,
-    IUnitOfWork _unitOfWork,
-    InventoryService _inventoryService
+    IUnitOfWork _unitOfWork
 ) : IRequestHandler<CompletePickingNoteCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CompletePickingNoteCommand request, CancellationToken cancellationToken)
@@ -23,7 +22,7 @@ public class CompletePickingNoteHandler(
         // 1. Get PickingNote by ID
         var spec = new GetPickingNoteById(new PickingNoteId(request.PickingNoteId));
         var pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
-        if (pickingNote == null)
+        if (pickingNote is null)
             return Result<Guid>.Failure("Picking note not found");
 
         // 2. Validate picking note is currently in Picking status (can complete only from Picking)

@@ -12,6 +12,7 @@ public static class Api
         api.MapPickingNoteApi();
         api.MapStockOutApi();
         api.MapStockAdjustmentApi();
+        api.MapInventoryApi();
 
         return api;
     }
