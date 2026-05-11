@@ -19,7 +19,7 @@ public static class PickingNoteApi
         var api = app.MapGroup("pickingNote").WithTags("PickingNote");
 
         // Tạo phiếu soạn hàng (từ SalesOrder hoặc TransferOrder)
-        api.MapPost("/createPickingNote", CreatePickingNote).WithOpenApi();
+        // api.MapPost("/createPickingNote", CreatePickingNote).WithOpenApi();
 
         // Bắt đầu soạn hàng → allocate inventory
         api.MapPost("/startPicking", StartPicking).WithOpenApi();
@@ -37,16 +37,16 @@ public static class PickingNoteApi
         return api;
     }
 
-    private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreatePickingNote(
-        [FromBody] CreatePickingNoteCommand command,
-        [FromServices] IMediator mediator
-    )
-    {
-        var result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
-            : TypedResults.BadRequest(result.Error);
-    }
+    // private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreatePickingNote(
+    //     [FromBody] CreatePickingNoteCommand command,
+    //     [FromServices] IMediator mediator
+    // )
+    // {
+    //     var result = await mediator.Send(command);
+    //     return result.IsSuccess
+    //         ? TypedResults.Ok(result.Value)
+    //         : TypedResults.BadRequest(result.Error);
+    // }
 
     private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> StartPicking(
         [FromBody] StartPickingNoteCommand command,

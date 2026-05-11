@@ -39,8 +39,8 @@ public class StartPickingNoteHandler(
         _inventoryService.StartPicking(inventoryItems, pickingNote);
 
         // 5. Persist changes
-        await _pickingNoteRepository.Update(pickingNote, cancellationToken);
-        await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+        // await _pickingNoteRepository.Update(pickingNote, cancellationToken);
+        // await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(pickingNote.Id.Value);

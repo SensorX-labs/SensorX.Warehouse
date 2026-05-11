@@ -12,7 +12,7 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
     public StockOut(
         StockOutId id,
         Code code,
-        string? description,
+        string? description, // lý do xuất
         DeliveryInfo? deliveryInfo
     ) : base(id)
     {
@@ -22,11 +22,11 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
     }
 
     public Code Code { get; private set; } = null!;
-    public string? Description { get; private set; }
+    public string? Description { get; private set; } // lý do xuất
     public DeliveryInfo? DeliveryInfo { get; private set; }
 
     public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
-    public PickingNoteId? PickingNoteId { get; private set; }
+    public PickingNoteId? PickingNoteId { get; private set; } // null thì xuất theo điều chỉnh tồn kho
 
     private readonly List<StockOutItem> _lineItems = [];
     public IReadOnlyList<StockOutItem> LineItems => _lineItems.AsReadOnly();

@@ -25,8 +25,7 @@ public class CreatePickingNoteHandler(
         Code? noteCode = null;
         
         // 2. Build delivery info
-        var deliveryInfo = request.DeliveryInfo?.ToDeliveryInfo()
-            ?? new DeliveryInfo("Unknown", "0000000000", "Unknown", "Unknown", "0000000000");
+        var deliveryInfo = request.DeliveryInfo.ToDeliveryInfo();
 
         // 3. Create PickingNote aggregate
         PickingNote pickingNote;

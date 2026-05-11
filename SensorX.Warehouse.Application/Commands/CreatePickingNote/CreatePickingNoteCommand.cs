@@ -31,7 +31,7 @@ public class CreatePickingNoteCommand : IRequest<Result<Guid>>
     /// <summary>
     /// Thông tin giao hàng.
     /// </summary>
-    public DeliveryInfoDto? DeliveryInfo { get; set; }
+    public required DeliveryInfoDto DeliveryInfo { get; set; }
 
     /// <summary>
     /// Danh sách sản phẩm cần nhặt.
