@@ -13,6 +13,8 @@ public class GetPageListInventoryItemsQuery : CursorPagedQuery, IRequest<Result<
 public record GetPageListInventoryItemsResponse(
     Guid Id,
     Guid ProductId,
+    string? ProductName,
+    string? ProductCode,
     decimal PhysicalQuantity,
     decimal AllocatedQuantity,
     string? WarehouseName,
