@@ -190,68 +190,6 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("SensorX.Warehouse.Application.Queries.ReadModels.Product", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("ManufactureName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("Products", (string)null);
-                });
-
-            modelBuilder.Entity("SensorX.Warehouse.Application.Queries.ReadModels.ProductCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("ProductCategories", (string)null);
-                });
-
             modelBuilder.Entity("SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.InventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -326,7 +264,6 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("ReceivedDate")
@@ -370,6 +307,9 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PickingNoteId")
+                        .IsUnique();
+
                     b.ToTable("StockOuts", (string)null);
                 });
 
@@ -383,76 +323,6 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
-                });
-
-            modelBuilder.Entity("SensorX.Warehouse.Application.Queries.ReadModels.Product", b =>
-                {
-                    b.HasOne("SensorX.Warehouse.Application.Queries.ReadModels.ProductCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.OwnsMany("SensorX.Warehouse.Application.Queries.ReadModels.ProductAttribute", "Attributes", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("AttributeName")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("AttributeValue")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uuid");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("ProductId");
-
-                            b1.ToTable("ProductAttributes", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
-                    b.OwnsMany("SensorX.Warehouse.Application.Queries.ReadModels.ProductImage", "Images", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("ImageUrl")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uuid");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("ProductId");
-
-                            b1.ToTable("ProductImages", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
-                    b.Navigation("Attributes");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("SensorX.Warehouse.Application.Queries.ReadModels.ProductCategory", b =>
-                {
-                    b.HasOne("SensorX.Warehouse.Application.Queries.ReadModels.ProductCategory", null)
-                        .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.InventoryItem", b =>
@@ -657,6 +527,11 @@ namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 
             modelBuilder.Entity("SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate.StockOut", b =>
                 {
+                    b.HasOne("SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate.PickingNote", null)
+                        .WithOne()
+                        .HasForeignKey("SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate.StockOut", "PickingNoteId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.OwnsOne("SensorX.Warehouse.Domain.ValueObjects.DeliveryInfo", "DeliveryInfo", b1 =>
                         {
                             b1.Property<Guid>("StockOutId")

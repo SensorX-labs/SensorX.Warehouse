@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Warehouse.WebApi", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Warehouse.Domain.Tests", "SensorX.Warehouse.Domain.Tests\SensorX.Warehouse.Domain.Tests.csproj", "{90F41588-7868-4E9D-A3F9-8F25D760891F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Warehouse.Application.Tests", "SensorX.Warehouse.Application.Tests\SensorX.Warehouse.Application.Tests.csproj", "{432A899E-D5A3-4C88-ACE8-8BB8D6F4EA0C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

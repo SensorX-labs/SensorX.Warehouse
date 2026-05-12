@@ -1,6 +1,7 @@
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.Services.DTOs;
 
 public class StockOutLineRequest
@@ -13,3 +14,4 @@ public class StockOutLineRequest
     public required string ManufactureName { get; set; }
     public string? Note { get; set; }
 }
+

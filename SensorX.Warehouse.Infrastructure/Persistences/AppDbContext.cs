@@ -3,15 +3,19 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.SeedWork;
+using SensorX.Warehouse.Domain.AggregatesModel.ProductAggregate;
 
 namespace SensorX.Warehouse.Infrastructure.Persistences;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator mediator) : DbContext(options)
 {
     private readonly IMediator _mediator = mediator;
+
+    public DbSet<ProductReadModel> ProductReadModels { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

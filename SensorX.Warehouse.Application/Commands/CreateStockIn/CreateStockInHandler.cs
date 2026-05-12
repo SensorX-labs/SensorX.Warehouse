@@ -7,6 +7,7 @@ using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.Services;
 using SensorX.Warehouse.Domain.Services.DTOs;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Application.Commands.CreateStockIn;
@@ -21,7 +22,8 @@ public class CreateStockInHandler(
 {
     public async Task<Result<Guid>> Handle(CreateStockInCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetInventoryItemByProductIds([.. request.Items.Select(x => x.ProductId)]);
+        var warehouseId = new WarehouseId(request.WarehouseId);
+        var spec = new GetInventoryItemByProductIds(warehouseId, [.. request.Items.Select(x => x.ProductId)]);
         var lineItems = request.Items.Select(x => new StockInLineRequest
         {
             ProductId = new ProductId(x.ProductId),
@@ -35,13 +37,14 @@ public class CreateStockInHandler(
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         var stockIn = _inventoryService.CreateStockIn(
+            warehouseId,
             inventoryItems,
             lineItems,
             transferOrderCode,
             request.Description,
-            DateTimeOffset.Now,
-            _currentUser.Username!,
-            request.DevliveredBy,
+            DateTimeOffset.UtcNow,
+            _currentUser.Username ?? "unknown",
+            request.DeliveredBy,
             request.WarehouseKeeper
         );
 

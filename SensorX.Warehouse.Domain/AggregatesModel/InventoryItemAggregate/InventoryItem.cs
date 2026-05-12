@@ -2,6 +2,7 @@ using SensorX.Warehouse.Domain.Common.Exceptions;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 
 public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationTrackable, IUpdateTrackable
@@ -66,8 +67,22 @@ public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationT
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
+    /// <summary>
+    /// Adjust physical quantity by delta (can be positive or negative).
+    /// Throws if resulting quantity would be negative.
+    /// </summary>
+    public void AdjustPhysicalQuantity(int delta)
+    {
+        var newValue = PhysicalQuantity.Value + delta;
+        if (newValue < 0)
+            throw new DomainException("Adjustment would result in negative physical quantity");
+        PhysicalQuantity = new Quantity(newValue);
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public int GetSalableQuantity()
     {
         return PhysicalQuantity - AllocatedQuantity;
     }
 }
+

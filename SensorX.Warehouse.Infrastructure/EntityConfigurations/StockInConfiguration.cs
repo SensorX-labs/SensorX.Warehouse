@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Infrastructure.EntityConfigurations;
@@ -27,10 +28,13 @@ public class StockInConfiguration : IEntityTypeConfiguration<StockIn>
         builder.Property(x => x.WarehouseId)
             .HasConversion(x => x.Value, x => new WarehouseId(x));
 
+        builder.Navigation(x => x.LineItems)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.OwnsMany(x => x.LineItems, lineItem =>
         {
             lineItem.ToTable("StockInItems");
-
+            lineItem.WithOwner().HasForeignKey("StockInId");
             lineItem.HasKey(x => x.Id);
 
             lineItem.Property(x => x.Id)

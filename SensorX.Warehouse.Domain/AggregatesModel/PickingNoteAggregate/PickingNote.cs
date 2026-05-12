@@ -1,6 +1,7 @@
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrackable
@@ -14,13 +15,14 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     private readonly List<PickingLineItem> _lineItems = [];
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
 
-    public WarehouseId WarehouseId { get; init; } = WarehouseId.Default;
+    public WarehouseId WarehouseId { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     private PickingNote() : base() { }
 
     private PickingNote(
         PickingNoteId id,
+        WarehouseId warehouseId,
         Code code,
         DocumentReference sourceDocument,
         PickingStatus status,
@@ -28,6 +30,7 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         DeliveryInfo deliveryInfo
     ) : base(id)
     {
+        WarehouseId = warehouseId;
         Code = code;
         SourceDocument = sourceDocument;
         Status = status;
@@ -35,10 +38,11 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         DeliveryInfo = deliveryInfo;
     }
 
-    public static PickingNote CreateForSalesOrder(OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForSalesOrder(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
+            warehouseId,
             noteCode,
             new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
             PickingStatus.Pending,
@@ -47,10 +51,11 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         );
     }
 
-    public static PickingNote CreateForTransferOrder(TransferOrderId transferOrderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForTransferOrder(WarehouseId warehouseId, TransferOrderId transferOrderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
     {
         return new PickingNote(
             PickingNoteId.New(),
+            warehouseId,
             noteCode,
             new DocumentReference(DocumentType.TransferOrder, transferOrderId, noteCode),
             PickingStatus.Pending,
@@ -78,3 +83,4 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
 
     public void ConfirmCompleted() => Status = PickingStatus.Completed;
 }
+

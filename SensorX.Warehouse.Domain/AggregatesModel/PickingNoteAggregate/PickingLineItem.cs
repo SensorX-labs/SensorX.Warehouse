@@ -1,6 +1,7 @@
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public class PickingLineItem : Entity<PickingLineItemId>
@@ -37,3 +38,4 @@ public class PickingLineItem : Entity<PickingLineItemId>
 
     public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }
+

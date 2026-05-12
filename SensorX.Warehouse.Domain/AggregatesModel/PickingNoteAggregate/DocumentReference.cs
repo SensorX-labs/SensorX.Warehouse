@@ -1,3 +1,4 @@
+using SensorX.Warehouse.Domain.ValueObjects;
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
 public record DocumentReference(
@@ -5,3 +6,5 @@ public record DocumentReference(
     Guid Id,
     string Code
 );
+
+

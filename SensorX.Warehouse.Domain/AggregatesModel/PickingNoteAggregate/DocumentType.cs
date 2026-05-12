@@ -6,3 +6,4 @@ public enum DocumentType
     SalesOrder, // Đơn bán hàng
     TransferOrder // Lệnh điều chuyển
 }
+

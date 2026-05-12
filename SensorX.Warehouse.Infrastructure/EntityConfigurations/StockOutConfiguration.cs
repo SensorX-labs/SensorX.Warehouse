@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Infrastructure.EntityConfigurations;
@@ -56,5 +57,10 @@ public class StockOutConfiguration : IEntityTypeConfiguration<StockOut>
             lineItem.Property(x => x.Quantity)
                 .HasConversion(x => x.Value, x => new Quantity(x));
         });
+
+        builder.HasOne<PickingNote>()
+            .WithOne()
+            .HasForeignKey<StockOut>(x => x.PickingNoteId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

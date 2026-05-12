@@ -1,6 +1,7 @@
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 
 public class StockOutItem : Entity<StockOutItemId>
@@ -37,3 +38,4 @@ public class StockOutItem : Entity<StockOutItemId>
 
     public void AddQuantity(Quantity quantity) => Quantity += quantity;
 }
+

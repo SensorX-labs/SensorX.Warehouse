@@ -1,5 +1,6 @@
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 using Xunit;
 
@@ -15,6 +16,7 @@ public class StockOutTests
     {
         // Arrange
         var id = StockOutId.New();
+        var warehouseId = WarehouseId.New();
         var code = Code.Create("PX");
         var description = "Xuất kho bán hàng";
         var receiverName = "Nguyễn Văn A";
@@ -27,6 +29,7 @@ public class StockOutTests
         var deliveryInfo = new DeliveryInfo(receiverName, receiverPhone, deliveryAddress, companyName, taxCode);
         var stockOut = new StockOut(
             id,
+            warehouseId,
             code,
             description,
             deliveryInfo
@@ -37,7 +40,7 @@ public class StockOutTests
         Assert.Equal(code, stockOut.Code);
         Assert.Equal(description, stockOut.Description);
         Assert.Equal(deliveryInfo, stockOut.DeliveryInfo);
-        Assert.Equal(WarehouseId.Default, stockOut.WarehouseId);
+        Assert.Equal(warehouseId, stockOut.WarehouseId);
         Assert.Null(stockOut.PickingNoteId);
         Assert.Empty(stockOut.LineItems);
     }
@@ -116,6 +119,7 @@ public class StockOutTests
     {
         return new StockOut(
             StockOutId.New(),
+            WarehouseId.New(),
             Code.Create("PX"),
             "Description",
             new DeliveryInfo("Receiver", "0000000000", "Address", "Company", "TaxCode")

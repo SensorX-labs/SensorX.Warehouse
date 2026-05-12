@@ -2,6 +2,7 @@ using SensorX.Warehouse.Domain.Events;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
 
+using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 
 public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
@@ -10,6 +11,7 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
 
     public StockIn(
         StockInId id,
+        WarehouseId warehouseId,
         Code code,
         Code? transferOrderCode,
         string? description,
@@ -19,6 +21,7 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
         string warehouseKeeper
     ) : base(id)
     {
+        WarehouseId = warehouseId;
         Code = code;
         TransferOrderCode = transferOrderCode;
         Description = description;
@@ -38,7 +41,7 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
     public string CreatedBy { get; private set; } = null!;
     public string DeliveredBy { get; private set; } = null!;
     public string WarehouseKeeper { get; private set; } = null!;
-    public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
+    public WarehouseId WarehouseId { get; private set; } = null!;
 
     private readonly List<StockInItem> _lineItems = [];
     public IReadOnlyList<StockInItem> LineItems => _lineItems.AsReadOnly();
@@ -58,3 +61,4 @@ public class StockIn : Entity<StockInId>, IAggregateRoot, ICreationTrackable
         }
     }
 }
+

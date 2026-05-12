@@ -1,9 +1,12 @@
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
+
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 using SensorX.Warehouse.Domain.Common.Exceptions;
+using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.Services.DTOs;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Domain.Services;
@@ -11,6 +14,17 @@ namespace SensorX.Warehouse.Domain.Services;
 #pragma warning disable CA1822 // Mark members as static
 public class InventoryService
 {
+    // Resolves one InventoryItem per ProductId from a list.
+    // Throws DomainException if none found or if multiple locations exist for same product.
+    private static InventoryItem ResolveItem(List<InventoryItem> items, ProductId productId, Code productCode)
+    {
+        var matches = items.Where(x => x.ProductId == productId).ToList();
+        if (matches.Count == 0)
+            throw new DomainException($"Inventory item not found for product {productCode}");
+        if (matches.Count > 1)
+            throw new DomainException($"Multiple inventory items found for product {productCode} — cannot resolve unambiguously. Ensure each product has a single warehouse entry.");
+        return matches[0];
+    }
     /// <summary>
     /// Tạo phiếu xuất kho (StockOut) từ lệnh lấy hàng (PickingNote).
     /// Đồng thời cập nhật trạng thái giữ hàng (CancelAllocation) và xác nhận xuất kho (ConfirmStockOut) cho từng mặt hàng.
@@ -22,21 +36,19 @@ public class InventoryService
     {
         var stockOut = new StockOut(
             StockOutId.New(),
+            note.WarehouseId,
             Code.Create("PX"),
             note.Description,
             note.DeliveryInfo
         );
         stockOut.SetPickingNoteId(note.Id);
 
-        var InventoryItems = items.ToDictionary(x => x.ProductId);
+        var itemsByProduct = items.ToLookup(x => x.ProductId);
+
         foreach (var item in note.LineItems)
         {
+            var inventoryItem = ResolveItem(items, item.ProductId, item.ProductCode);
             stockOut.AddItem(item.ProductId, item.ProductCode, item.ProductName, item.Unit, item.Quantity, item.ManufactureName, item.Note);
-
-            if (!InventoryItems.TryGetValue(item.ProductId, out var inventoryItem))
-            {
-                throw new DomainException($"Inventory item not found for product {item.ProductCode}");
-            }
             inventoryItem.CancelAllocation(item.Quantity);
             inventoryItem.ConfirmStockOut(item.Quantity);
         }
@@ -48,6 +60,7 @@ public class InventoryService
     /// Tạo phiếu nhập kho (StockIn) và cập nhật số lượng tồn kho vật lý.
     /// </summary>
     public StockIn CreateStockIn(
+        WarehouseId warehouseId,
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
         Code? transferOrderCode,
@@ -60,6 +73,7 @@ public class InventoryService
     {
         var stockIn = new StockIn(
             StockInId.New(),
+            warehouseId,
             Code.Create("PN"),
             transferOrderCode,
             description,
@@ -68,16 +82,10 @@ public class InventoryService
             deliveredBy,
             warehouseKeeper
         );
-
-        var InventoryItems = items.ToDictionary(x => x.ProductId);
         foreach (var item in lineItems)
         {
+            var inventoryItem = ResolveItem(items, item.ProductId, item.ProductCode);
             stockIn.AddItem(item.ProductId, item.ProductCode, item.ProductName, item.Unit, item.Quantity);
-
-            if (!InventoryItems.TryGetValue(item.ProductId, out var inventoryItem))
-            {
-                throw new DomainException($"Inventory item not found for product {item.ProductCode}");
-            }
             inventoryItem.ConfirmStockIn(item.Quantity);
         }
 
@@ -85,29 +93,27 @@ public class InventoryService
     }
 
     /// <summary>
-    /// Điều chỉnh kho (xuất kho trực tiếp) và cập nhật số lượng tồn kho vật lý.
+    /// Điều chỉnh kho (xuất kho trực tiếp)
     /// </summary>
-    public StockOut AdjustInventory(List<InventoryItem> items, List<StockOutLineRequest> lineItems)
+    public StockOut AdjustInventory(WarehouseId warehouseId, InventoryItem inventoryItem, StockOutLineRequest lineItem, string reason)
     {
         var stockOut = new StockOut(
             StockOutId.New(),
+            warehouseId,
             Code.Create("PX"),
-            "Điều chỉnh tồn kho",
+            reason,
             null
         );
-
-        var InventoryItems = items.ToDictionary(x => x.ProductId);
-        foreach (var item in lineItems)
-        {
-            stockOut.AddItem(item.ProductId, item.ProductCode, item.ProductName, item.Unit, item.Quantity, item.ManufactureName, item.Note);
-
-            if (!InventoryItems.TryGetValue(item.ProductId, out var inventoryItem))
-            {
-                throw new DomainException($"Inventory item not found for product {item.ProductCode}");
-            }
-            inventoryItem.ConfirmStockOut(item.Quantity);
-        }
-
+        stockOut.AddItem(
+            lineItem.ProductId,
+            lineItem.ProductCode,
+            lineItem.ProductName,
+            lineItem.Unit,
+            lineItem.Quantity,
+            lineItem.ManufactureName,
+            lineItem.Note
+        );
+        inventoryItem.ConfirmStockOut(lineItem.Quantity);
         return stockOut;
     }
 
@@ -118,15 +124,28 @@ public class InventoryService
     {
         pickingNote.StartPicking();
 
-        var InventoryItems = items.ToDictionary(x => x.ProductId);
         foreach (var item in pickingNote.LineItems)
         {
-            if (!InventoryItems.TryGetValue(item.ProductId, out var inventoryItem))
-            {
-                throw new DomainException($"Inventory item not found for product {item.ProductCode}");
-            }
+            var inventoryItem = ResolveItem(items, item.ProductId, item.ProductCode);
             inventoryItem.Allocate(item.Quantity);
         }
     }
+
+    /// <summary>
+    /// Hủy quá trình lấy hàng, thực hiện giải phóng hàng giữ (CancelAllocation) trong kho.
+    /// </summary>
+    public void CancelPicking(List<InventoryItem> items, PickingNote pickingNote)
+    {
+        pickingNote.ConfirmCanceled();
+
+        foreach (var item in pickingNote.LineItems)
+        {
+            var inventoryItem = ResolveItem(items, item.ProductId, item.ProductCode);
+            inventoryItem.CancelAllocation(item.Quantity);
+        }
+    }
+
+
 }
 #pragma warning restore CA1822
+

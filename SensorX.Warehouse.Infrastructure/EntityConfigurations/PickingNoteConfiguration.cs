@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
+using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
 
 namespace SensorX.Warehouse.Infrastructure.EntityConfigurations;

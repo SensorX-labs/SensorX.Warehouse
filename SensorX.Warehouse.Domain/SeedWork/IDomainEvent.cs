@@ -1,4 +1,5 @@
 namespace SensorX.Warehouse.Domain.SeedWork;
 
-public interface IDomainEvent {}
+public interface IDomainEvent { }
+
 

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SensorX.Warehouse.Application.Common.Interfaces;
+using SensorX.Warehouse.Application.Events;
+using SensorX.Warehouse.Application.Events.Consumers;
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Infrastructure.Persistences;
 using SensorX.Warehouse.Infrastructure.Services;
@@ -18,36 +20,55 @@ namespace SensorX.Warehouse.Infrastructure.DI
 
             services.AddMassTransit(x =>
             {
+                // Đăng ký Consumer
+                x.AddConsumer<OrderCreatedConsumer>();
+                x.AddConsumer<TransferOrderCreatedConsumer>();
+                x.AddConsumer<ProductSyncConsumer>();
+                x.AddConsumer<ProductDeletedConsumer>();
+
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
                 {
-                    // Sử dụng Postgres
                     o.UsePostgres();
-
-                    // Quan trọng: Báo cho MassTransit biết hãy đóng vai trò là Outbox
                     o.UseBusOutbox();
                 });
 
-                x.UsingInMemory((context, cfg) =>
+                x.UsingRabbitMq((context, cfg) =>
                 {
+                    var rabbitMqSettings = configuration.GetSection("RabbitMq");
+                    var host = rabbitMqSettings["Host"] ?? "localhost";
+                    var port = ushort.Parse(rabbitMqSettings["Port"] ?? "5672");
+                    var virtualHost = rabbitMqSettings["VirtualHost"] ?? "/";
+
+                    cfg.Host(host, port, virtualHost, h =>
+                    {
+                        h.Username(rabbitMqSettings["Username"] ?? "guest");
+                        h.Password(rabbitMqSettings["Password"] ?? "guest");
+                    });
+
+                    cfg.Message<ProductSyncEvent>(e =>
+                        e.SetEntityName("product-sync"));
+
+                    cfg.ReceiveEndpoint("product-sync-consumer", e =>
+                    {
+                        e.ConfigureConsumer<ProductSyncConsumer>(context);
+                    });
+
+                    cfg.Message<ProductDeletedEvent>(e =>
+                        e.SetEntityName("product-deleted"));
+
+                    cfg.ReceiveEndpoint("product-deleted-consumer", e =>
+                    {
+                        e.ConfigureConsumer<ProductDeletedConsumer>(context);
+                    });
+
                     cfg.ConfigureEndpoints(context);
                 });
-
-                // Cấu hình RabbitMQ (hoặc broker khác)
-                // x.UsingRabbitMq((context, cfg) =>
-                // {
-                //     cfg.Host("localhost", "/", h =>
-                //     {
-                //         h.Username("guest");
-                //         h.Password("guest");
-                //     });
-
-                //     cfg.ConfigureEndpoints(context);
-                // });
             });
 
-            // Dịch vụ hạ tầng kết nối
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
+            services.AddScoped<IQueryExecutor, QueryExecutor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -55,4 +76,3 @@ namespace SensorX.Warehouse.Infrastructure.DI
         }
     }
 }
-
