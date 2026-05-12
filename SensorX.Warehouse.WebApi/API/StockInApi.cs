@@ -21,15 +21,21 @@ namespace SensorX.Warehouse.WebApi.API
         }
 
         private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreateStockIn(
+            [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
             [FromBody] CreateStockInCommand command,
             [FromServices] IMediator mediator
         )
         {
+            if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+                return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
+            command.WarehouseId = warehouseId.Value;
             Result<Guid> result = await mediator.Send(command);
             return result ? TypedResults.Ok(result.Value) : TypedResults.BadRequest(result.Error);
         }
 
         private static async Task<Results<Ok<StockInCursorPagedResult>, BadRequest<string>, ProblemHttpResult>> GetStockIns(
+        [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
         [FromQuery] string? searchTerm,
         [FromQuery] int? pageSize,
         [FromQuery] bool? isPrevious,
@@ -40,8 +46,12 @@ namespace SensorX.Warehouse.WebApi.API
         [FromServices] IMediator mediator
     )
     {
+        if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+            return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
         var query = new GetPageListStockInsQuery
         {
+            WarehouseId = warehouseId.Value,
             SearchTerm = searchTerm,
             PageSize = pageSize ?? CursorPagedQuery.DefaultPageSize,
             IsPrevious = isPrevious ?? false,
@@ -58,11 +68,15 @@ namespace SensorX.Warehouse.WebApi.API
     }
 
         private static async Task<Results<Ok<StockInDetailDto>, BadRequest<string>, ProblemHttpResult>> GetStockInById(
+            [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
             [FromRoute] Guid id,
             [FromServices] IMediator mediator
         )
         {
-            var result = await mediator.Send(new GetStockInByIdQuery { Id = id });
+            if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+                return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
+            var result = await mediator.Send(new GetStockInByIdQuery { Id = id, WarehouseId = warehouseId.Value });
             return result.IsSuccess
                 ? TypedResults.Ok(result.Value)
                 : TypedResults.BadRequest(result.Error);

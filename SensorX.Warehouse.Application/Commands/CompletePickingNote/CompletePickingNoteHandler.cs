@@ -31,7 +31,7 @@ public class CompletePickingNoteHandler(
 
         // 3. Load inventory items to verify allocations (optional, but good practice)
         var productIds = pickingNote.LineItems.Select(x => x.ProductId).Distinct().ToList();
-        var inventorySpec = new GetInventoryItemByProductIds([.. productIds]);
+        var inventorySpec = new GetInventoryItemByProductIds(pickingNote.WarehouseId, [.. productIds]);
         var inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
         // 4. Complete picking (no inventory change, just status update)

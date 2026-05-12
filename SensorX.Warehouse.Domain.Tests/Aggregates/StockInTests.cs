@@ -15,6 +15,7 @@ public class StockInTests
     {
         // Arrange
         var id = StockInId.New();
+        var warehouseId = WarehouseId.New();
         var code = Code.Create("PN");
         var transferOrderCode = Code.Create("TO");
         var description = "Nhập kho từ lệnh điều chuyển";
@@ -26,6 +27,7 @@ public class StockInTests
         // Act
         var stockIn = new StockIn(
             id,
+            warehouseId,
             code,
             transferOrderCode,
             description,
@@ -44,7 +46,7 @@ public class StockInTests
         Assert.Equal(createdBy, stockIn.CreatedBy);
         Assert.Equal(deliveredBy, stockIn.DeliveredBy);
         Assert.Equal(warehouseKeeper, stockIn.WarehouseKeeper);
-        Assert.Equal(WarehouseId.Default, stockIn.WarehouseId);
+        Assert.Equal(warehouseId, stockIn.WarehouseId);
         Assert.Empty(stockIn.LineItems);
     }
 
@@ -100,6 +102,7 @@ public class StockInTests
     {
         return new StockIn(
             StockInId.New(),
+            WarehouseId.New(),
             Code.Create("PN"),
             Code.Create("TO"),
             "Description",

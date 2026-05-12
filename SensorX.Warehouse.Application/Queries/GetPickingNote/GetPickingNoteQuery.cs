@@ -7,6 +7,7 @@ namespace SensorX.Warehouse.Application.Queries.GetPickingNote;
 public class GetPickingNoteQuery : IRequest<Result<PickingNoteDto>>
 {
     public Guid PickingNoteId { get; set; }
+    public Guid WarehouseId { get; set; }
 }
 
 public record PickingNoteDto(

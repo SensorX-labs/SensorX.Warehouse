@@ -22,7 +22,8 @@ public class CreateStockInHandler(
 {
     public async Task<Result<Guid>> Handle(CreateStockInCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetInventoryItemByProductIds([.. request.Items.Select(x => x.ProductId)]);
+        var warehouseId = new WarehouseId(request.WarehouseId);
+        var spec = new GetInventoryItemByProductIds(warehouseId, [.. request.Items.Select(x => x.ProductId)]);
         var lineItems = request.Items.Select(x => new StockInLineRequest
         {
             ProductId = new ProductId(x.ProductId),
@@ -36,6 +37,7 @@ public class CreateStockInHandler(
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         var stockIn = _inventoryService.CreateStockIn(
+            warehouseId,
             inventoryItems,
             lineItems,
             transferOrderCode,

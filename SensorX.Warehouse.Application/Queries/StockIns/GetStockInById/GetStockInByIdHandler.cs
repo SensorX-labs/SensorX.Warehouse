@@ -18,7 +18,7 @@ public class GetStockInByIdHandler(
             var spec = new GetStockInById(new StockInId(request.Id));
             var stockIn = await _stockInRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
-            if (stockIn is null)
+            if (stockIn is null || stockIn.WarehouseId != new Domain.StrongIDs.WarehouseId(request.WarehouseId))
                 return Result<StockInDetailDto>.Failure("Stock in not found");
 
             Console.WriteLine($"[DEBUG] StockIn {stockIn.Id.Value} loaded. LineItems count: {stockIn.LineItems.Count}");

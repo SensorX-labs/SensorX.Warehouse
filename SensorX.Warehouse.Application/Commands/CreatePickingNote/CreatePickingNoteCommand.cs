@@ -8,6 +8,7 @@ namespace SensorX.Warehouse.Application.Commands.CreatePickingNote;
 
 public class CreatePickingNoteCommand : IRequest<Result<Guid>>
 {
+    public Guid WarehouseId { get; set; }
     /// <summary>
     /// Loại document nguồn: SalesOrder hoặc TransferOrder.
     /// </summary>

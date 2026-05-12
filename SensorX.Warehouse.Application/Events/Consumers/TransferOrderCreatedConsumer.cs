@@ -26,7 +26,7 @@ public class TransferOrderCreatedConsumer(
         // Placeholder for DeliveryInfo - cần làm rõ logic lấy thông tin này
         var deliveryInfo = new DeliveryInfo("Transfer", "N/A", "N/A", "N/A", "N/A");
 
-        var pickingNote = PickingNote.CreateForTransferOrder(sourceId, code, description, deliveryInfo);
+        var pickingNote = PickingNote.CreateForTransferOrder(new WarehouseId(message.FromWarehouseId), sourceId, code, description, deliveryInfo);
 
         await pickingNoteRepository.Add(pickingNote, context.CancellationToken);
         logger.LogInformation("Created PickingNote for TransferOrder: {TransferOrderId}", message.TransferOrderId);

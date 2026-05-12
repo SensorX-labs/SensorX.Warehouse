@@ -11,11 +11,13 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
 
     public StockOut(
         StockOutId id,
+        WarehouseId warehouseId,
         Code code,
         string? description, // lý do xuất
         DeliveryInfo? deliveryInfo
     ) : base(id)
     {
+        WarehouseId = warehouseId;
         Code = code;
         Description = description;
         DeliveryInfo = deliveryInfo;
@@ -25,7 +27,7 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
     public string? Description { get; private set; } // lý do xuất
     public DeliveryInfo? DeliveryInfo { get; private set; }
 
-    public WarehouseId WarehouseId { get; private set; } = WarehouseId.Default;
+    public WarehouseId WarehouseId { get; private set; } = null!;
     public PickingNoteId? PickingNoteId { get; private set; } // null thì xuất theo điều chỉnh tồn kho
 
     private readonly List<StockOutItem> _lineItems = [];

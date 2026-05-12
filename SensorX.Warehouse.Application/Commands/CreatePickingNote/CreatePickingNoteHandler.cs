@@ -20,6 +20,7 @@ public class CreatePickingNoteHandler(
 {
     public async Task<Result<Guid>> Handle(CreatePickingNoteCommand request, CancellationToken cancellationToken)
     {
+        var warehouseId = new WarehouseId(request.WarehouseId);
         // 1. Build source document
         var docType = Enum.Parse<DocumentType>(request.DocumentType, ignoreCase: true);
         Code? noteCode = null;
@@ -33,18 +34,18 @@ public class CreatePickingNoteHandler(
         {
             var orderId = new OrderId(request.DocumentId);
             noteCode = Code.Create("PN");
-            pickingNote = PickingNote.CreateForSalesOrder(orderId, noteCode, request.Description, deliveryInfo);
+            pickingNote = PickingNote.CreateForSalesOrder(warehouseId, orderId, noteCode, request.Description, deliveryInfo);
         }
         else
         {
             var transferOrderId = new TransferOrderId(request.DocumentId);
             noteCode = Code.Create("TN");
-            pickingNote = PickingNote.CreateForTransferOrder(transferOrderId, noteCode, request.Description, deliveryInfo);
+            pickingNote = PickingNote.CreateForTransferOrder(warehouseId, transferOrderId, noteCode, request.Description, deliveryInfo);
         }
 
         // 4. Load inventory items to allocate
         var productIds = request.Items.Select(x => x.ProductId).ToList();
-        var spec = new GetInventoryItemByProductIds([.. productIds]);
+        var spec = new GetInventoryItemByProductIds(warehouseId, [.. productIds]);
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         // 5. Add items to picking note

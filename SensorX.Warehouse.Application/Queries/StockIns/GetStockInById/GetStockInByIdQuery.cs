@@ -6,6 +6,7 @@ namespace SensorX.Warehouse.Application.Queries.StockIns;
 public class GetStockInByIdQuery : IRequest<Result<StockInDetailDto>>
 {
     public Guid Id { get; set; }
+    public Guid WarehouseId { get; set; }
 }
 
 public record StockInDetailDto(

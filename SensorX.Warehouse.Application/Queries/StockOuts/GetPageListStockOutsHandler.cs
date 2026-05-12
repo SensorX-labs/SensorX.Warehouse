@@ -15,7 +15,13 @@ public class GetPageListStockOutsHandler(
     {
         try
         {
-            var query = _queryBuilder.QueryAsNoTracking;
+            var query = _queryBuilder.QueryAsNoTracking
+                .Where(x => x.WarehouseId == new Domain.StrongIDs.WarehouseId(request.WarehouseId));
+
+            if (request.IsAdjustmentOnly)
+            {
+                query = query.Where(x => x.PickingNoteId == null);
+            }
 
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {

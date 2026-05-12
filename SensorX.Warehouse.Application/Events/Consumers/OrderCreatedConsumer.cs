@@ -35,7 +35,7 @@ public class OrderCreatedConsumer(
             message.TaxCode
         );
 
-        var pickingNote = PickingNote.CreateForSalesOrder(orderId, noteCode, description, deliveryInfo);
+        var pickingNote = PickingNote.CreateForSalesOrder(new WarehouseId(message.WarehouseId), orderId, noteCode, description, deliveryInfo);
 
         await pickingNoteRepository.Add(pickingNote, context.CancellationToken);
         await unitOfWork.SaveChangesAsync(context.CancellationToken);

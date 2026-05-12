@@ -6,6 +6,7 @@ namespace SensorX.Warehouse.Application.Queries.StockIns;
 
 public class GetPageListStockInsQuery : CursorPagedQuery, IRequest<Result<StockInCursorPagedResult>>
 {
+    public Guid WarehouseId { get; set; }
     public string? SearchTerm { get; set; }
 }
 

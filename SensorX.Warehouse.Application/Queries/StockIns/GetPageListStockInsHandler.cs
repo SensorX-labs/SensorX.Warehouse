@@ -15,7 +15,8 @@ public class GetPageListStockInsHandler(
     {
         try
         {
-            var query = _queryBuilder.QueryAsNoTracking;
+            var query = _queryBuilder.QueryAsNoTracking
+                .Where(x => x.WarehouseId == new Domain.StrongIDs.WarehouseId(request.WarehouseId));
 
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {

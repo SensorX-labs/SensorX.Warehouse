@@ -20,6 +20,7 @@ public static class InventoryApi
     }
 
     private static async Task<Results<Ok<InventoryItemCursorPagedResult>, BadRequest<string>, ProblemHttpResult>> GetInventoryItems(
+        [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
         [FromQuery] string? searchTerm,
         [FromQuery] int? pageSize,
         [FromQuery] bool? isPrevious,
@@ -30,8 +31,12 @@ public static class InventoryApi
         [FromServices] IMediator mediator
     )
     {
+        if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+            return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
         var query = new GetPageListInventoryItemsQuery
         {
+            WarehouseId = warehouseId.Value,
             SearchTerm = searchTerm,
             PageSize = pageSize ?? CursorPagedQuery.DefaultPageSize,
             IsPrevious = isPrevious ?? false,

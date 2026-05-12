@@ -7,6 +7,7 @@ namespace SensorX.Warehouse.Application.Events;
 public record OrderCreatedEvent
 {
     public Guid OrderId { get; init; }
+    public Guid WarehouseId { get; init; }
     public string OrderCode { get; init; } = string.Empty;
     public DateTimeOffset CreatedAt { get; init; }
     // DeliveryInfo fields

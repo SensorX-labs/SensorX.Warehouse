@@ -6,6 +6,8 @@ namespace SensorX.Warehouse.Application.Queries.StockOuts;
 
 public class GetPageListStockOutsQuery : CursorPagedQuery, IRequest<Result<StockOutCursorPagedResult>>
 {
+    public Guid WarehouseId { get; set; }
+    public bool IsAdjustmentOnly { get; set; }
     public string? SearchTerm { get; set; }
 }
 

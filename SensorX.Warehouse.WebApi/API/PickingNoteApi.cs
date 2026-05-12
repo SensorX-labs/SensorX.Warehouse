@@ -19,7 +19,7 @@ public static class PickingNoteApi
         var api = app.MapGroup("pickingNote").WithTags("PickingNote");
 
         // Tạo phiếu soạn hàng (từ SalesOrder hoặc TransferOrder)
-        // api.MapPost("/createPickingNote", CreatePickingNote).WithOpenApi();
+        api.MapPost("/createPickingNote", CreatePickingNote).WithOpenApi();
 
         // Bắt đầu soạn hàng → allocate inventory
         api.MapPost("/startPicking", StartPicking).WithOpenApi();
@@ -32,21 +32,28 @@ public static class PickingNoteApi
 
         // Lấy thông tin phiếu soạn hàng
         api.MapGet("/getPickingNote/{id:guid}", GetPickingNote).WithOpenApi();
+        api.MapGet("/{id:guid}", GetPickingNote).WithOpenApi();
         api.MapGet("/getPickingNotes", GetPickingNotes).WithOpenApi();
+        api.MapGet("/list", GetPickingNotes).WithOpenApi();
 
         return api;
     }
 
-    // private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreatePickingNote(
-    //     [FromBody] CreatePickingNoteCommand command,
-    //     [FromServices] IMediator mediator
-    // )
-    // {
-    //     var result = await mediator.Send(command);
-    //     return result.IsSuccess
-    //         ? TypedResults.Ok(result.Value)
-    //         : TypedResults.BadRequest(result.Error);
-    // }
+    private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> CreatePickingNote(
+        [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
+        [FromBody] CreatePickingNoteCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+            return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
+        command.WarehouseId = warehouseId.Value;
+        var result = await mediator.Send(command);
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : TypedResults.BadRequest(result.Error);
+    }
 
     private static async Task<Results<Ok<Guid>, BadRequest<string>, ProblemHttpResult>> StartPicking(
         [FromBody] StartPickingNoteCommand command,
@@ -82,17 +89,22 @@ public static class PickingNoteApi
     }
 
     private static async Task<Results<Ok<PickingNoteDto>, BadRequest<string>, ProblemHttpResult>> GetPickingNote(
+        [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(new GetPickingNoteQuery { PickingNoteId = id });
+        if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+            return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
+        var result = await mediator.Send(new GetPickingNoteQuery { PickingNoteId = id, WarehouseId = warehouseId.Value });
         return result.IsSuccess
             ? TypedResults.Ok(result.Value)
             : TypedResults.BadRequest(result.Error);
     }
 
     private static async Task<Results<Ok<PickingNoteCursorPagedResult>, BadRequest<string>, ProblemHttpResult>> GetPickingNotes(
+        [FromHeader(Name = "X-Warehouse-Id")] Guid? warehouseId,
         [FromQuery] string? searchTerm,
         [FromQuery] int? pageSize,
         [FromQuery] bool? isPrevious,
@@ -103,8 +115,12 @@ public static class PickingNoteApi
         [FromServices] IMediator mediator
     )
     {
+        if (!warehouseId.HasValue || warehouseId == Guid.Empty)
+            return TypedResults.BadRequest("Vui lòng chọn kho bãi (X-Warehouse-Id header is missing)");
+
         var query = new GetPageListPickingNotesQuery
         {
+            WarehouseId = warehouseId.Value,
             SearchTerm = searchTerm,
             PageSize = pageSize ?? CursorPagedQuery.DefaultPageSize,
             IsPrevious = isPrevious ?? false,

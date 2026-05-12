@@ -6,6 +6,7 @@ namespace SensorX.Warehouse.Application.Queries.PickingNotes;
 
 public class GetPageListPickingNotesQuery : CursorPagedQuery, IRequest<Result<PickingNoteCursorPagedResult>>
 {
+    public Guid WarehouseId { get; set; }
     public string? SearchTerm { get; set; }
 }
 

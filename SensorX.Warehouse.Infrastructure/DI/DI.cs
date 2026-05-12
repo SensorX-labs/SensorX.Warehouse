@@ -23,6 +23,8 @@ namespace SensorX.Warehouse.Infrastructure.DI
                 // Đăng ký Consumer
                 x.AddConsumer<OrderCreatedConsumer>();
                 x.AddConsumer<TransferOrderCreatedConsumer>();
+                x.AddConsumer<ProductSyncConsumer>();
+                x.AddConsumer<ProductDeletedConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -42,6 +44,22 @@ namespace SensorX.Warehouse.Infrastructure.DI
                     {
                         h.Username(rabbitMqSettings["Username"] ?? "guest");
                         h.Password(rabbitMqSettings["Password"] ?? "guest");
+                    });
+
+                    cfg.Message<ProductSyncEvent>(e =>
+                        e.SetEntityName("product-sync"));
+
+                    cfg.ReceiveEndpoint("product-sync-consumer", e =>
+                    {
+                        e.ConfigureConsumer<ProductSyncConsumer>(context);
+                    });
+
+                    cfg.Message<ProductDeletedEvent>(e =>
+                        e.SetEntityName("product-deleted"));
+
+                    cfg.ReceiveEndpoint("product-deleted-consumer", e =>
+                    {
+                        e.ConfigureConsumer<ProductDeletedConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

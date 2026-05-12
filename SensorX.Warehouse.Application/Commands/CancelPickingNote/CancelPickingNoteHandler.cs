@@ -32,7 +32,7 @@ public class CancelPickingNoteHandler(
 
         // 3. Load related inventory items for allocation rollback
         var productIds = pickingNote.LineItems.Select(x => x.ProductId).Distinct().ToList();
-        var inventorySpec = new GetInventoryItemByProductIds([.. productIds]);
+        var inventorySpec = new GetInventoryItemByProductIds(pickingNote.WarehouseId, [.. productIds]);
         var inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
         // 4. Cancel picking (release allocations)

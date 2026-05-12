@@ -15,7 +15,8 @@ public class GetPageListInventoryItemsHandler(
     {
         try
         {
-            var query = _queryBuilder.QueryAsNoTracking;
+            var query = _queryBuilder.QueryAsNoTracking
+                .Where(x => x.WarehouseItemLocation.WarehouseId == new Domain.StrongIDs.WarehouseId(request.WarehouseId));
 
             // Note: Since InventoryItem only has ProductId, searchTerm here can only match Warehouse or Location
             // If we want to search by ProductName, we would need a join or fetch products first.

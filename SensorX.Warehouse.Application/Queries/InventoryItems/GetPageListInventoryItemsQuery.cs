@@ -6,6 +6,7 @@ namespace SensorX.Warehouse.Application.Queries.InventoryItems;
 
 public class GetPageListInventoryItemsQuery : CursorPagedQuery, IRequest<Result<InventoryItemCursorPagedResult>>
 {
+    public Guid WarehouseId { get; set; }
     public string? SearchTerm { get; set; }
 }
 

@@ -32,7 +32,7 @@ public class StartPickingNoteHandler(
 
         // 3. Load all inventory items referenced in the picking note
         var productIds = pickingNote.LineItems.Select(x => x.ProductId).Distinct().ToList();
-        var inventorySpec = new GetInventoryItemByProductIds([.. productIds]);
+        var inventorySpec = new GetInventoryItemByProductIds(pickingNote.WarehouseId, [.. productIds]);
         var inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
         // 4. Start picking via service (allocates inventory, updates status)

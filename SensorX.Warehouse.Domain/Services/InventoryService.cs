@@ -1,6 +1,6 @@
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
-using SensorX.Warehouse.Domain.AggregatesModel.StockAdjustmentAggregate;
+
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.StockOutAggregate;
 using SensorX.Warehouse.Domain.Common.Exceptions;
@@ -36,6 +36,7 @@ public class InventoryService
     {
         var stockOut = new StockOut(
             StockOutId.New(),
+            note.WarehouseId,
             Code.Create("PX"),
             note.Description,
             note.DeliveryInfo
@@ -59,6 +60,7 @@ public class InventoryService
     /// Tạo phiếu nhập kho (StockIn) và cập nhật số lượng tồn kho vật lý.
     /// </summary>
     public StockIn CreateStockIn(
+        WarehouseId warehouseId,
         List<InventoryItem> items,
         List<StockInLineRequest> lineItems,
         Code? transferOrderCode,
@@ -66,11 +68,12 @@ public class InventoryService
         DateTimeOffset receivedDate,
         string createdBy,
         string deliveredBy,
-string warehouseKeeper
+        string warehouseKeeper
     )
     {
         var stockIn = new StockIn(
             StockInId.New(),
+            warehouseId,
             Code.Create("PN"),
             transferOrderCode,
             description,
@@ -92,10 +95,11 @@ string warehouseKeeper
     /// <summary>
     /// Điều chỉnh kho (xuất kho trực tiếp)
     /// </summary>
-    public StockOut AdjustInventory(InventoryItem inventoryItem, StockOutLineRequest lineItem, string reason)
+    public StockOut AdjustInventory(WarehouseId warehouseId, InventoryItem inventoryItem, StockOutLineRequest lineItem, string reason)
     {
         var stockOut = new StockOut(
             StockOutId.New(),
+            warehouseId,
             Code.Create("PX"),
             reason,
             null
@@ -141,17 +145,7 @@ string warehouseKeeper
         }
     }
 
-    /// <summary>
-    /// Áp dụng điều chỉnh kho (tăng/giảm tồn kho vật lý) từ phiếu điều chỉnh.
-    /// </summary>
-    public void ApplyAdjustment(List<InventoryItem> items, StockAdjustment adjustment)
-    {
-        foreach (var adjItem in adjustment.Items)
-        {
-            var inventoryItem = ResolveItem(items, adjItem.ProductId, adjItem.ProductCode);
-            inventoryItem.AdjustPhysicalQuantity(adjItem.AdjustedQuantity);
-        }
-    }
+
 }
 #pragma warning restore CA1822
 
