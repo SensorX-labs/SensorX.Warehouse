@@ -23,8 +23,10 @@ namespace SensorX.Warehouse.Infrastructure.DI
                 // Đăng ký Consumer
                 x.AddConsumer<OrderCreatedConsumer>();
                 x.AddConsumer<TransferOrderCreatedConsumer>();
-                x.AddConsumer<ProductSyncConsumer>();
-                x.AddConsumer<ProductDeletedConsumer>();
+                x.AddConsumer<CreateProductConsumer>();
+                x.AddConsumer<UpdateProductConsumer>();
+                x.AddConsumer<ChangeProductStatusConsumer>();
+                x.AddConsumer<DeleteProductConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -46,20 +48,36 @@ namespace SensorX.Warehouse.Infrastructure.DI
                         h.Password(rabbitMqSettings["Password"] ?? "guest");
                     });
 
-                    cfg.Message<ProductSyncEvent>(e =>
-                        e.SetEntityName("product-sync"));
+                    cfg.Message<CreateProductEvent>(e =>
+                        e.SetEntityName("Product-Created-Event"));
 
-                    cfg.ReceiveEndpoint("product-sync-consumer", e =>
+                    cfg.ReceiveEndpoint("product-created-consumer", e =>
                     {
-                        e.ConfigureConsumer<ProductSyncConsumer>(context);
+                        e.ConfigureConsumer<CreateProductConsumer>(context);
                     });
 
-                    cfg.Message<ProductDeletedEvent>(e =>
-                        e.SetEntityName("product-deleted"));
+                    cfg.Message<UpdateProductEvent>(e =>
+                        e.SetEntityName("Product-Updated-Event"));
+
+                    cfg.ReceiveEndpoint("product-updated-consumer", e =>
+                    {
+                        e.ConfigureConsumer<UpdateProductConsumer>(context);
+                    });
+
+                    cfg.Message<ChangeProductStatusEvent>(e =>
+                        e.SetEntityName("Product-Status-Changed-Event"));
+
+                    cfg.ReceiveEndpoint("product-status-changed-consumer", e =>
+                    {
+                        e.ConfigureConsumer<ChangeProductStatusConsumer>(context);
+                    });
+
+                    cfg.Message<DeleteProductEvent>(e =>
+                        e.SetEntityName("Product-Deleted-Event"));
 
                     cfg.ReceiveEndpoint("product-deleted-consumer", e =>
                     {
-                        e.ConfigureConsumer<ProductDeletedConsumer>(context);
+                        e.ConfigureConsumer<DeleteProductConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);
