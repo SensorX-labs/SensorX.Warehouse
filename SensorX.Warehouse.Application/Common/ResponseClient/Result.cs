@@ -5,6 +5,7 @@ namespace SensorX.Warehouse.Application.Common.ResponseClient
         public bool IsSuccess { get; }
         public T? Value { get; }
         public string? Message { get; }
+        public string? Error => Message;
 
         protected Result(bool isSuccess, T? value, string? message)
         {
@@ -27,6 +28,7 @@ namespace SensorX.Warehouse.Application.Common.ResponseClient
     {
         public bool IsSuccess { get; }
         public string? Message { get; }
+        public string? Error => Message;
 
         protected Result(bool isSuccess, string? message)
         {
