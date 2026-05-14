@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using SensorX.Warehouse.Domain.Common.Exceptions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.Domain.Common.Exceptions;
 
 namespace SensorX.Warehouse.WebApi.Configurations;
 
@@ -14,31 +15,29 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
-        logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
-
-        var (statusCode, title, detail) = exception switch
+        var (statusCode, message, logLevel) = exception switch
         {
             DomainException => (
+                StatusCodes.Status422UnprocessableEntity,
+                exception.Message,
+                LogLevel.Warning),
+            SensorX.Warehouse.Application.Common.Exceptions.ApplicationException => (
                 StatusCodes.Status400BadRequest,
-                "Domain Validation Error",
-                exception.Message),
+                exception.Message,
+                LogLevel.Warning),
             _ => (
                 StatusCodes.Status500InternalServerError,
-                "Internal Server Error",
-                exception.Message)
+                "Đã có lỗi hệ thống xảy ra. Vui lòng thử lại sau.",
+                LogLevel.Error),
         };
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = title,
-            Detail = detail,
-            Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
-        };
+        logger.Log(logLevel, exception, "Exception occurred: {Message}", exception.Message);
+
+        var result = Result.Failure(message);
 
         httpContext.Response.StatusCode = statusCode;
 
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(result, cancellationToken);
 
         return true;
     }

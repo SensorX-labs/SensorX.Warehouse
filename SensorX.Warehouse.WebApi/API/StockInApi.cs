@@ -1,8 +1,8 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Warehouse.Application.Commands.CreateStockIn;
-using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.WebApi.Extensions;
 using SensorX.Warehouse.Application.Queries.StockIns;
 using SensorX.Warehouse.Application.Common.Pagination;
 
