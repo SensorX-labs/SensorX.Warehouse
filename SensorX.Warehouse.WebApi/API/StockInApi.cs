@@ -17,6 +17,7 @@ namespace SensorX.Warehouse.WebApi.API
             api.MapPost("/createStockIn", CreateStockIn).WithOpenApi();
             api.MapGet("/list", GetStockIns).WithOpenApi();
             api.MapGet("/{id:guid}", GetStockInById).WithOpenApi();
+            api.MapGet("/detail/{id:guid}", GetStockInById).WithOpenApi();
             return api;
         }
 

@@ -50,19 +50,23 @@ public class CreateStockOutHandler(
             if (request.Items == null || request.Items.Count == 0)
                 return Result<Guid>.Failure("Items must be provided for direct adjustment.");
 
-            var productIds = request.Items.Select(x => x.ProductId).Distinct().ToList();
-            var inventorySpec = new GetInventoryItemByProductIds(warehouseId, [.. productIds]);
+            var productIds = request.Items.Select(x => new ProductId(x.ProductId)).Distinct().ToList();
+            var inventorySpec = new GetInventoryItemByProductIds(warehouseId, productIds);
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
             // For simplicity, we just handle one item for now or multiple items? 
             // The AdjustInventory in service currently handles ONE item.
             // Let's create the StockOut directly and update items.
-            stockOut = new StockOut(StockOutId.New(), warehouseId, Code.Create("PX"), request.Description, null);
+            var isAdjustment = request.IsAdjustment || !request.PickingNoteId.HasValue;
+            var prefix = isAdjustment ? "PKK" : "PX";
+            var code = !string.IsNullOrEmpty(request.Code) ? Code.From(request.Code) : Code.Create(prefix);
+            stockOut = new StockOut(StockOutId.New(), warehouseId, code, request.Description, null);
             foreach (var itemDto in request.Items)
             {
                 var inventoryItem = inventoryItems.FirstOrDefault(x => x.ProductId == itemDto.ProductId);
                 if (inventoryItem == null) return Result<Guid>.Failure($"Product {itemDto.ProductId} not found in inventory.");
-                
+                var encodedNote = isAdjustment ? $"[Adj:{itemDto.AdjustedQuantity}] {itemDto.Note}".Trim() : itemDto.Note;
+
                 stockOut.AddItem(
                     new ProductId(itemDto.ProductId),
                     Code.From(itemDto.ProductCode),
@@ -70,9 +74,11 @@ public class CreateStockOutHandler(
                     itemDto.Unit,
                     new Quantity(itemDto.Quantity),
                     itemDto.ManufactureName,
-                    itemDto.Note
+                    encodedNote
                 );
-                inventoryItem.ConfirmStockOut(new Quantity(itemDto.Quantity));
+                
+                var delta = itemDto.AdjustedQuantity != 0 ? itemDto.AdjustedQuantity : -itemDto.Quantity;
+                inventoryItem.AdjustPhysicalQuantity(delta);
             }
         }
 

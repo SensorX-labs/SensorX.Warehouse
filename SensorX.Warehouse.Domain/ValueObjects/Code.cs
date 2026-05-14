@@ -33,6 +33,6 @@ public partial record Code
     public static implicit operator string(Code code) => code?.Value ?? string.Empty;
 
     public override string ToString() => Value;
-    [GeneratedRegex(@"^[A-Z0-9]+-\d{6}-\d{9}$")]
+    [GeneratedRegex(@"^[A-Z0-9_-]+$")]
     private static partial Regex MyRegex();
 }

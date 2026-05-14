@@ -44,8 +44,8 @@ public class CreatePickingNoteHandler(
         }
 
         // 4. Load inventory items to allocate
-        var productIds = request.Items.Select(x => x.ProductId).ToList();
-        var spec = new GetInventoryItemByProductIds(warehouseId, [.. productIds]);
+        var productIds = request.Items.Select(x => new ProductId(x.ProductId)).ToList();
+        var spec = new GetInventoryItemByProductIds(warehouseId, productIds);
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         // 5. Add items to picking note

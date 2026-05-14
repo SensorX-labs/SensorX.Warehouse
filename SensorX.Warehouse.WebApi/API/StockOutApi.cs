@@ -19,6 +19,10 @@ public static class StockOutApi
 
         api.MapGet("/list", GetStockOuts).WithOpenApi();
         api.MapGet("/{id:guid}", GetStockOutById).WithOpenApi();
+        api.MapGet("/detail/{id:guid}", GetStockOutById).WithOpenApi();
+        
+        api.MapPost("/approve", ApproveStockOut).WithOpenApi();
+        api.MapPost("/reject", RejectStockOut).WithOpenApi();
 
         return api;
     }
@@ -87,5 +91,15 @@ public static class StockOutApi
         return result.IsSuccess
             ? TypedResults.Ok(result.Value)
             : TypedResults.BadRequest(result.Error);
+    }
+
+    private static IResult ApproveStockOut()
+    {
+        return TypedResults.Ok();
+    }
+
+    private static IResult RejectStockOut()
+    {
+        return TypedResults.Ok();
     }
 }
