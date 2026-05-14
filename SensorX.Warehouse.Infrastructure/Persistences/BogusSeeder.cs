@@ -23,10 +23,11 @@ public static class BogusSeeder
                 var id = InventoryItemId.New();
                 var productId = ProductId.New();
                 var location = new WarehouseItemLocation(
-                    "WH-01",
-                    "ZONE-A",
-                    f.Random.Number(1, 10).ToString(),
-                    f.Random.Number(1, 5).ToString()
+                    new WarehouseId(Guid.Parse("733ec7e9-3767-4e20-a1c2-4d19e4e57a7e")), // Mặc định là Warehouse 1
+                    "Kho Tổng",
+                    "Floor-" + f.Random.Number(1, 10).ToString(),
+                    "ZONE-" + f.Random.String2(1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+                    "RACK-" + f.Random.Number(1, 5).ToString()
                 );
                 var physicalQty = new Quantity(f.Random.Number(100, 1000));
                 var allocatedQty = new Quantity(f.Random.Number(0, 50));

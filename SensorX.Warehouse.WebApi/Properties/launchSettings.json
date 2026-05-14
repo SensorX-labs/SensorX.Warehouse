@@ -18,7 +18,11 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5202",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Username=postgres;Password=sk1234;Database=SensorX_Warehouse",
+        "Jwt__Authority": "http://localhost:5053",
+        "Jwt__Audience": "api",
+        "Jwt__RequireHttpsMetadata": "false"
       }
     },
   }

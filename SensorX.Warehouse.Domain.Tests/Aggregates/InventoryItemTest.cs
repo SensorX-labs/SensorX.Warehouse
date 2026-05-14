@@ -16,7 +16,7 @@ public class InventoryItemTests
         return new InventoryItem(
             InventoryItemId.New(),
             ProductId.New(),
-            new WarehouseItemLocation("Kho Hải Phòng", "1", "A", "R01"),
+            new WarehouseItemLocation(WarehouseId.New(), "Kho Hải Phòng", "1", "A", "R01"),
             new Quantity(physical),
             new Quantity(allocated)
         );
