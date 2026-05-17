@@ -1,6 +1,8 @@
 using MediatR;
+using MassTransit;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specifications;
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
@@ -17,6 +19,7 @@ public class CreateStockInHandler(
     IRepository<StockIn> _stockInRepository,
     IUnitOfWork _unitOfWork,
     InventoryService _inventoryService,
+    IPublishEndpoint _publishEndpoint,
     ICurrentUser _currentUser
 ) : IRequestHandler<CreateStockInCommand, Result<Guid>>
 {
@@ -72,6 +75,26 @@ public class CreateStockInHandler(
         {
             await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
         }
+
+        var snapshotItems = lineItems
+            .Select(item =>
+            {
+                var inventoryItem = allInventoryItems.First(x => x.ProductId == item.ProductId);
+                return new InventoryItemSnapshot(
+                    item.ProductId.Value,
+                    item.ProductCode.Value,
+                    item.ProductName,
+                    item.Unit,
+                    inventoryItem.PhysicalQuantity.Value,
+                    inventoryItem.AllocatedQuantity.Value,
+                    inventoryItem.WarehouseItemLocation?.WarehouseName,
+                    inventoryItem.WarehouseItemLocation?.BrandZone,
+                    inventoryItem.WarehouseItemLocation?.RackCode
+                );
+            })
+            .ToList();
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<Guid>.Success(stockIn.Id.Value);
     }

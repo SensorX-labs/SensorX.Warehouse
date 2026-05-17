@@ -47,6 +47,8 @@ namespace SensorX.Warehouse.Infrastructure.DI
                     {
                         h.Username(rabbitMqSettings["Username"] ?? "guest");
                         h.Password(rabbitMqSettings["Password"] ?? "guest");
+
+                        // Intentionally not setting client provided name here to maintain compatibility
                     });
 
                     cfg.Message<CreateProductEvent>(e =>
@@ -82,8 +84,14 @@ namespace SensorX.Warehouse.Infrastructure.DI
                     });
 
                     cfg.ConfigureEndpoints(context);
+                          // Message entity names for new events
+                          cfg.Message<InventorySnapshotEvent>(e => e.SetEntityName("Inventory-Snapshot-Event"));
+                          cfg.Message<WarehouseConnectedEvent>(e => e.SetEntityName("Warehouse-Connected-Event"));
                 });
             });
+
+            // Register hosted service to publish warehouse connected + inventory snapshot on startup
+            services.AddHostedService<WarehouseStartupPublisher>();
 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));

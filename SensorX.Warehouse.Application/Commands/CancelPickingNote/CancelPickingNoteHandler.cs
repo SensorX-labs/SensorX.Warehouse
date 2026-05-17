@@ -1,6 +1,8 @@
 using MediatR;
+using MassTransit;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specifications;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
@@ -15,7 +17,8 @@ public class CancelPickingNoteHandler(
     IRepository<PickingNote> _pickingNoteRepository,
     IRepository<InventoryItem> _inventoryItemRepository,
     IUnitOfWork _unitOfWork,
-    InventoryService _inventoryService
+    InventoryService _inventoryService,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<CancelPickingNoteCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CancelPickingNoteCommand request, CancellationToken cancellationToken)
@@ -41,6 +44,24 @@ public class CancelPickingNoteHandler(
         // 5. Persist updates
         await _pickingNoteRepository.Update(pickingNote, cancellationToken);
         await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+
+        var snapshotItems = pickingNote.LineItems.Select(line =>
+        {
+            var inventoryItem = inventoryItems.First(x => x.ProductId == line.ProductId);
+            return new InventoryItemSnapshot(
+                line.ProductId.Value,
+                line.ProductCode.Value,
+                line.ProductName,
+                line.Unit,
+                inventoryItem.PhysicalQuantity.Value,
+                inventoryItem.AllocatedQuantity.Value,
+                inventoryItem.WarehouseItemLocation?.WarehouseName,
+                inventoryItem.WarehouseItemLocation?.BrandZone,
+                inventoryItem.WarehouseItemLocation?.RackCode
+            );
+        }).ToList();
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(pickingNote.WarehouseId.Value.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(pickingNote.Id.Value);

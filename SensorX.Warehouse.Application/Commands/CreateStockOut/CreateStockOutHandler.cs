@@ -1,6 +1,8 @@
 using MediatR;
+using MassTransit;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specifications;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
@@ -18,7 +20,8 @@ public class CreateStockOutHandler(
     IRepository<InventoryItem> _inventoryItemRepository,
     IRepository<StockOut> _stockOutRepository,
     IUnitOfWork _unitOfWork,
-    InventoryService _inventoryService
+    InventoryService _inventoryService,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<CreateStockOutCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateStockOutCommand request, CancellationToken cancellationToken)
@@ -26,12 +29,14 @@ public class CreateStockOutHandler(
         var warehouseId = new WarehouseId(request.WarehouseId);
         StockOut stockOut;
         List<InventoryItem> inventoryItems;
+        PickingNote? pickingNote = null;
+        List<InventoryItemSnapshot> snapshotItems;
 
         if (request.PickingNoteId.HasValue)
         {
             // Case 1: Create StockOut from PickingNote
             var spec = new GetPickingNoteById(new PickingNoteId(request.PickingNoteId.Value));
-            var pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
+            pickingNote = await _pickingNoteRepository.FirstOrDefaultAsync(spec, cancellationToken);
             if (pickingNote is null)
                 return Result<Guid>.Failure("Picking note not found");
 
@@ -43,6 +48,22 @@ public class CreateStockOutHandler(
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
             stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote);
+
+            snapshotItems = pickingNote.LineItems.Select(line =>
+            {
+                var inventoryItem = inventoryItems.First(x => x.ProductId == line.ProductId);
+                return new InventoryItemSnapshot(
+                    line.ProductId.Value,
+                    line.ProductCode.Value,
+                    line.ProductName,
+                    line.Unit,
+                    inventoryItem.PhysicalQuantity.Value,
+                    inventoryItem.AllocatedQuantity.Value,
+                    inventoryItem.WarehouseItemLocation?.WarehouseName,
+                    inventoryItem.WarehouseItemLocation?.BrandZone,
+                    inventoryItem.WarehouseItemLocation?.RackCode
+                );
+            }).ToList();
         }
         else
         {
@@ -80,10 +101,28 @@ public class CreateStockOutHandler(
                 var delta = itemDto.AdjustedQuantity != 0 ? itemDto.AdjustedQuantity : -itemDto.Quantity;
                 inventoryItem.AdjustPhysicalQuantity(delta);
             }
+
+            snapshotItems = request.Items.Select(itemDto =>
+            {
+                var inventoryItem = inventoryItems.First(x => x.ProductId.Value == itemDto.ProductId);
+                return new InventoryItemSnapshot(
+                    itemDto.ProductId,
+                    itemDto.ProductCode,
+                    itemDto.ProductName,
+                    itemDto.Unit,
+                    inventoryItem.PhysicalQuantity.Value,
+                    inventoryItem.AllocatedQuantity.Value,
+                    inventoryItem.WarehouseItemLocation?.WarehouseName,
+                    inventoryItem.WarehouseItemLocation?.BrandZone,
+                    inventoryItem.WarehouseItemLocation?.RackCode
+                );
+            }).ToList();
         }
 
         await _stockOutRepository.Add(stockOut, cancellationToken);
         await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(stockOut.Id.Value);
