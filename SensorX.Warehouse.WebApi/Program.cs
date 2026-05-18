@@ -85,9 +85,6 @@ if (autoApplyMigration)
                     CONSTRAINT ""PK_ProductReadModels"" PRIMARY KEY (""Id"")
                 );");
 
-            // Seed fake data using Bogus
-            await BogusSeeder.SeedData(dbContext);
-
             break;
         }
         catch (Exception ex) when (attempt < maxMigrationRetries)

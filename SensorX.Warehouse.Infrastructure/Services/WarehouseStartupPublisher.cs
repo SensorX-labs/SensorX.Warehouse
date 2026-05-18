@@ -33,22 +33,22 @@ public class WarehouseStartupPublisher : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var warehouseId = _configuration["Warehouse:Id"] ?? _configuration["WAREHOUSE_ID"];
+        var warehouseId = _configuration["WAREHOUSE_ID"] ?? _configuration["Warehouse:Id"];
         if (string.IsNullOrWhiteSpace(warehouseId))
         {
-            _logger.LogWarning("WAREHOUSE_ID not configured. Skipping startup publish.");
+            _logger.LogWarning("WAREHOUSE_ID (or Warehouse:Id) not configured. Skipping startup publish.");
             return;
         }
 
-        var warehouseName = _configuration["Warehouse:Name"] ?? _configuration["WAREHOUSE_NAME"] ?? $"Warehouse {warehouseId[..Math.Min(warehouseId.Length, 8)]}";
-
-        _logger.LogInformation("Publishing WarehouseConnected for {WarehouseId} ({WarehouseName})", warehouseId, warehouseName);
+        var warehouseName = _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"] ?? $"Warehouse {warehouseId[..Math.Min(warehouseId.Length, 8)]}";
+        var warehouseAddress = _configuration["WAREHOUSE_ADDRESS"] ?? _configuration["Warehouse:Address"] ?? "Unknown Address";
+        _logger.LogInformation("Publishing WarehouseConnected for {WarehouseId} ({WarehouseName}) at {WarehouseAddress}", warehouseId, warehouseName, warehouseAddress);
 
         using var scope = _serviceProvider.CreateScope();
         var bus = scope.ServiceProvider.GetRequiredService<IBus>();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await bus.Publish(new WarehouseConnectedEvent(warehouseId, warehouseName, "connected", DateTimeOffset.UtcNow), cancellationToken);
+        await bus.Publish(new WarehouseConnectedEvent(warehouseId, warehouseName, warehouseAddress, "connected", DateTimeOffset.UtcNow), cancellationToken);
 
         if (!Guid.TryParse(warehouseId, out var warehouseGuid))
         {
