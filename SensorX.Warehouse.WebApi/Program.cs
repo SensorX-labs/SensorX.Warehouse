@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using SensorX.Warehouse.Infrastructure.DI;
 using SensorX.Warehouse.Infrastructure.Persistences;
 using SensorX.Warehouse.WebApi;
 using SensorX.Warehouse.WebApi.Configurations;
+using SensorX.Warehouse.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Cấu hình Authentication
@@ -35,6 +37,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     // Yêu cầu .NET tự động chuyển đổi giữa String và Enum
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
@@ -69,9 +73,17 @@ if (autoApplyMigration)
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.MigrateAsync();
-
-            // Seed fake data using Bogus
-            await BogusSeeder.SeedData(dbContext);
+            await dbContext.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS ""ProductReadModels"" (
+                    ""Id"" uuid NOT NULL,
+                    ""Code"" character varying(100) NOT NULL,
+                    ""Name"" character varying(500) NOT NULL,
+                    ""Unit"" character varying(50) NOT NULL,
+                    ""Manufacture"" character varying(200) NULL,
+                    ""Status"" character varying(50) NOT NULL,
+                    ""LastSyncAt"" timestamp with time zone NOT NULL,
+                    CONSTRAINT ""PK_ProductReadModels"" PRIMARY KEY (""Id"")
+                );");
 
             break;
         }
@@ -96,6 +108,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseUserContext();
 app.UseAuthorization();
 
 app.MapApi();

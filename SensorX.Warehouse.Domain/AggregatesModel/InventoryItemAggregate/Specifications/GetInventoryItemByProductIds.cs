@@ -5,9 +5,9 @@ namespace SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specif
 
 public class GetInventoryItemByProductIds : Specification<InventoryItem>
 {
-    public GetInventoryItemByProductIds(List<Guid> productIds)
+    public GetInventoryItemByProductIds(WarehouseId warehouseId, List<ProductId> productIds)
     {
-        Query.Where(x => productIds.Contains(x.ProductId));
+        Query.Where(x => x.WarehouseItemLocation != null && x.WarehouseItemLocation.WarehouseId == warehouseId && productIds.Contains(x.ProductId));
     }
 }
 

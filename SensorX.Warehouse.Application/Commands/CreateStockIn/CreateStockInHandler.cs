@@ -1,6 +1,8 @@
 using MediatR;
+using MassTransit;
 using SensorX.Warehouse.Application.Common.Interfaces;
 using SensorX.Warehouse.Application.Common.ResponseClient;
+using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate;
 using SensorX.Warehouse.Domain.AggregatesModel.InventoryItemAggregate.Specifications;
 using SensorX.Warehouse.Domain.AggregatesModel.StockInAggregate;
@@ -17,12 +19,14 @@ public class CreateStockInHandler(
     IRepository<StockIn> _stockInRepository,
     IUnitOfWork _unitOfWork,
     InventoryService _inventoryService,
+    IPublishEndpoint _publishEndpoint,
     ICurrentUser _currentUser
 ) : IRequestHandler<CreateStockInCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateStockInCommand request, CancellationToken cancellationToken)
     {
-        var spec = new GetInventoryItemByProductIds([.. request.Items.Select(x => x.ProductId)]);
+        var warehouseId = new WarehouseId(request.WarehouseId);
+        var spec = new GetInventoryItemByProductIds(warehouseId, [.. request.Items.Select(x => new ProductId(x.ProductId))]);
         var lineItems = request.Items.Select(x => new StockInLineRequest
         {
             ProductId = new ProductId(x.ProductId),
@@ -35,19 +39,62 @@ public class CreateStockInHandler(
         var transferOrderCode = request.TransferOrderCode != null ? Code.From(request.TransferOrderCode) : null;
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
+        var allInventoryItems = new List<InventoryItem>(inventoryItems);
+        var existingProductIds = inventoryItems.Select(x => x.ProductId).ToHashSet();
+        foreach (var reqItem in lineItems)
+        {
+            if (!existingProductIds.Contains(reqItem.ProductId))
+            {
+                var newItem = new InventoryItem(
+                    InventoryItemId.New(),
+                    reqItem.ProductId,
+                    new WarehouseItemLocation(warehouseId, "Kho chính", "Tầng 1", "Khu A", "Kệ 01"),
+                    new Quantity(0),
+                    new Quantity(0)
+                );
+                await _inventoryItemRepository.Add(newItem, cancellationToken);
+                allInventoryItems.Add(newItem);
+                existingProductIds.Add(reqItem.ProductId);
+            }
+        }
+
         var stockIn = _inventoryService.CreateStockIn(
-            inventoryItems,
+            warehouseId,
+            allInventoryItems,
             lineItems,
             transferOrderCode,
             request.Description,
-            DateTimeOffset.Now,
-            _currentUser.Username!,
-            request.DevliveredBy,
+            DateTimeOffset.UtcNow,
+            _currentUser.Username ?? "unknown",
+            request.DeliveredBy,
             request.WarehouseKeeper
         );
 
         await _stockInRepository.Add(stockIn, cancellationToken);
-        await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+        if (inventoryItems.Count > 0)
+        {
+            await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+        }
+
+        var snapshotItems = lineItems
+            .Select(item =>
+            {
+                var inventoryItem = allInventoryItems.First(x => x.ProductId == item.ProductId);
+                return new InventoryItemSnapshot(
+                    item.ProductId.Value,
+                    item.ProductCode.Value,
+                    item.ProductName,
+                    item.Unit,
+                    inventoryItem.PhysicalQuantity.Value,
+                    inventoryItem.AllocatedQuantity.Value,
+                    inventoryItem.WarehouseItemLocation?.WarehouseName,
+                    inventoryItem.WarehouseItemLocation?.BrandZone,
+                    inventoryItem.WarehouseItemLocation?.RackCode
+                );
+            })
+            .ToList();
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<Guid>.Success(stockIn.Id.Value);
     }
