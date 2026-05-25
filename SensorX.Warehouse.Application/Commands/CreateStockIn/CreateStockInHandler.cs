@@ -11,6 +11,7 @@ using SensorX.Warehouse.Domain.Services;
 using SensorX.Warehouse.Domain.Services.DTOs;
 using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
+using Microsoft.Extensions.Configuration;
 
 namespace SensorX.Warehouse.Application.Commands.CreateStockIn;
 
@@ -20,12 +21,14 @@ public class CreateStockInHandler(
     IUnitOfWork _unitOfWork,
     InventoryService _inventoryService,
     IPublishEndpoint _publishEndpoint,
-    ICurrentUser _currentUser
+    ICurrentUser _currentUser,
+    IConfiguration _configuration
 ) : IRequestHandler<CreateStockInCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateStockInCommand request, CancellationToken cancellationToken)
     {
         var warehouseId = new WarehouseId(request.WarehouseId);
+        var warehouseGuid = request.WarehouseId;
         var spec = new GetInventoryItemByProductIds(warehouseId, [.. request.Items.Select(x => new ProductId(x.ProductId))]);
         var lineItems = request.Items.Select(x => new StockInLineRequest
         {
@@ -48,7 +51,7 @@ public class CreateStockInHandler(
                 var newItem = new InventoryItem(
                     InventoryItemId.New(),
                     reqItem.ProductId,
-                    new WarehouseItemLocation(warehouseId, "Kho chính", "Tầng 1", "Khu A", "Kệ 01"),
+                    new WarehouseItemLocation(warehouseId, _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"], "Tầng 1", "Khu A", "Kệ 01"),
                     new Quantity(0),
                     new Quantity(0)
                 );
@@ -76,21 +79,35 @@ public class CreateStockInHandler(
             await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
         }
 
-        var snapshotItems = lineItems
-            .Select(item =>
+        var snapshotItems = allInventoryItems
+            .Where(inventory => inventory.WarehouseItemLocation != null && inventory.WarehouseItemLocation.WarehouseId.Value == warehouseGuid)
+            .Select(inventory =>
             {
-                var inventoryItem = allInventoryItems.First(x => x.ProductId == item.ProductId);
-                return new InventoryItemSnapshot(
-                    item.ProductId.Value,
-                    item.ProductCode.Value,
-                    item.ProductName,
-                    item.Unit,
-                    inventoryItem.PhysicalQuantity.Value,
-                    inventoryItem.AllocatedQuantity.Value,
-                    inventoryItem.WarehouseItemLocation?.WarehouseName,
-                    inventoryItem.WarehouseItemLocation?.BrandZone,
-                    inventoryItem.WarehouseItemLocation?.RackCode
-                );
+                var lineItem = lineItems.FirstOrDefault(x => x.ProductId == inventory.ProductId);
+                var product = lineItem != null 
+                    ? new InventoryItemSnapshot(
+                        inventory.ProductId.Value,
+                        lineItem.ProductCode.Value,
+                        lineItem.ProductName,
+                        lineItem.Unit,
+                        inventory.PhysicalQuantity.Value,
+                        inventory.AllocatedQuantity.Value,
+                        inventory.WarehouseItemLocation?.WarehouseName,
+                        inventory.WarehouseItemLocation?.BrandZone,
+                        inventory.WarehouseItemLocation?.RackCode
+                    )
+                    : new InventoryItemSnapshot(
+                        inventory.ProductId.Value,
+                        null,  // Product details might be null for existing items
+                        null,
+                        null,
+                        inventory.PhysicalQuantity.Value,
+                        inventory.AllocatedQuantity.Value,
+                        inventory.WarehouseItemLocation?.WarehouseName,
+                        inventory.WarehouseItemLocation?.BrandZone,
+                        inventory.WarehouseItemLocation?.RackCode
+                    );
+                return product;
             })
             .ToList();
 

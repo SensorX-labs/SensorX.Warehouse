@@ -42,6 +42,10 @@ namespace SensorX.Warehouse.Infrastructure.DI
                     var host = rabbitMqSettings["Host"] ?? "localhost";
                     var port = ushort.Parse(rabbitMqSettings["Port"] ?? "5672");
                     var virtualHost = rabbitMqSettings["VirtualHost"] ?? "/";
+                    
+                    // Get warehouse ID to make endpoints unique per warehouse
+                    var warehouseId = configuration["WAREHOUSE_ID"] ?? configuration["Warehouse:Id"] ?? "default";
+                    var warehouseIdShort = warehouseId.Length > 8 ? warehouseId.Substring(0, 8) : warehouseId;
 
                     cfg.Host(host, port, virtualHost, h =>
                     {
@@ -54,32 +58,42 @@ namespace SensorX.Warehouse.Infrastructure.DI
                     cfg.Message<CreateProductEvent>(e =>
                         e.SetEntityName("Product-Created-Event"));
 
-                    cfg.ReceiveEndpoint("product-created-consumer", e =>
+                    // Create unique endpoint name per warehouse instance to ensure all warehouses receive all events
+                    cfg.ReceiveEndpoint($"product-created-consumer-{warehouseIdShort}", e =>
                     {
+                        // Optimize for real-time product sync - low latency
+                        e.PrefetchCount = 1;  // Process messages immediately, not in batches
+                        e.ConcurrentMessageLimit = 1;  // Sequential processing ensures consistency
                         e.ConfigureConsumer<CreateProductConsumer>(context);
                     });
 
                     cfg.Message<UpdateProductEvent>(e =>
                         e.SetEntityName("Product-Updated-Event"));
 
-                    cfg.ReceiveEndpoint("product-updated-consumer", e =>
+                    cfg.ReceiveEndpoint($"product-updated-consumer-{warehouseIdShort}", e =>
                     {
+                        e.PrefetchCount = 1;
+                        e.ConcurrentMessageLimit = 1;
                         e.ConfigureConsumer<UpdateProductConsumer>(context);
                     });
 
                     cfg.Message<ChangeProductStatusEvent>(e =>
                         e.SetEntityName("Product-Status-Changed-Event"));
 
-                    cfg.ReceiveEndpoint("product-status-changed-consumer", e =>
+                    cfg.ReceiveEndpoint($"product-status-changed-consumer-{warehouseIdShort}", e =>
                     {
+                        e.PrefetchCount = 1;
+                        e.ConcurrentMessageLimit = 1;
                         e.ConfigureConsumer<ChangeProductStatusConsumer>(context);
                     });
 
                     cfg.Message<DeleteProductEvent>(e =>
                         e.SetEntityName("Product-Deleted-Event"));
 
-                    cfg.ReceiveEndpoint("product-deleted-consumer", e =>
+                    cfg.ReceiveEndpoint($"product-deleted-consumer-{warehouseIdShort}", e =>
                     {
+                        e.PrefetchCount = 1;
+                        e.ConcurrentMessageLimit = 1;
                         e.ConfigureConsumer<DeleteProductConsumer>(context);
                     });
 

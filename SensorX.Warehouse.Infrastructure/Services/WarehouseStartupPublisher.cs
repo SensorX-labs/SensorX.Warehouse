@@ -61,6 +61,47 @@ public class WarehouseStartupPublisher : IHostedService
             .ToListAsync(cancellationToken);
 
         var productIds = inventoryRows.Select(x => x.ProductId).Distinct().ToList();
+        
+        // Wait for all products to be synced before publishing snapshot
+        // This ensures ProductReadModel has complete data for all products
+        const int maxWaitRetries = 60;  // 60 * 1 second = 1 minute max wait
+        int retryCount = 0;
+        
+        while (retryCount < maxWaitRetries)
+        {
+            var syncedProducts = await db.Set<ProductReadModel>()
+                .AsNoTracking()
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+
+            // Check if all products exist AND have complete data (not null)
+            var completeProducts = syncedProducts
+                .Where(p => !string.IsNullOrWhiteSpace(p.Code) && 
+                           !string.IsNullOrWhiteSpace(p.Name) && 
+                           !string.IsNullOrWhiteSpace(p.Unit))
+                .ToList();
+
+            if (syncedProducts.Count == productIds.Count && completeProducts.Count == productIds.Count)
+            {
+                _logger.LogInformation("All {Count} products synced with complete data successfully", productIds.Count);
+                break;
+            }
+
+            var missingCount = productIds.Count - syncedProducts.Count;
+            var incompleteCount = syncedProducts.Count - completeProducts.Count;
+            
+            _logger.LogInformation("Waiting for products to sync... (Synced: {SyncedCount}/{Total}, Complete: {CompleteCount}/{Total}, Missing: {Missing}, Incomplete: {Incomplete}), retry {Retry}/{MaxRetries}", 
+                syncedProducts.Count, productIds.Count, completeProducts.Count, productIds.Count, missingCount, incompleteCount, retryCount + 1, maxWaitRetries);
+
+            await Task.Delay(1000, cancellationToken);  // Wait 1 second before retry
+            retryCount++;
+        }
+
+        if (retryCount >= maxWaitRetries)
+        {
+            _logger.LogWarning("Timeout waiting for all products to sync. Proceeding with available products. This may result in incomplete inventory snapshots.");
+        }
+
         var products = await db.Set<ProductReadModel>()
             .AsNoTracking()
             .Where(p => productIds.Contains(p.Id))
@@ -71,6 +112,14 @@ public class WarehouseStartupPublisher : IHostedService
             .Select(inventory =>
             {
                 products.TryGetValue(inventory.ProductId, out var product);
+                
+                // Log warning if product details missing, but still include the item
+                if (product == null)
+                {
+                    _logger.LogWarning("Product not found for InventoryItem {InventoryItemId} (ProductId: {ProductId}). Publishing with null product details.", 
+                        inventory.Id.Value, inventory.ProductId.Value);
+                }
+                
                 return new InventoryItemSnapshot(
                     inventory.ProductId.Value,
                     product?.Code,

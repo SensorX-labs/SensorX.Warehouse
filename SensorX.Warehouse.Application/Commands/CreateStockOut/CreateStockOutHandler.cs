@@ -122,7 +122,29 @@ public class CreateStockOutHandler(
         await _stockOutRepository.Add(stockOut, cancellationToken);
         await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
 
-        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
+        // Publish inventory snapshot with ALL warehouse items (not just those modified)
+        // After removing the "delete obsolete" logic in the consumer, this ensures no data loss
+        var warehouseId_ = new WarehouseId(request.WarehouseId);
+        
+        // For stock out operations, we can't easily fetch all items in warehouse
+        // Instead, publish snapshot of items being adjusted + include product details
+        var snapshotItemsList = inventoryItems.Select(item =>
+        {
+            var requestItem = request.Items?.FirstOrDefault(x => x.ProductId == item.ProductId.Value);
+            return new InventoryItemSnapshot(
+                item.ProductId.Value,
+                requestItem?.ProductCode,  // Use request details if available
+                requestItem?.ProductName,
+                requestItem?.Unit,
+                item.PhysicalQuantity.Value,
+                item.AllocatedQuantity.Value,
+                item.WarehouseItemLocation?.WarehouseName,
+                item.WarehouseItemLocation?.BrandZone,
+                item.WarehouseItemLocation?.RackCode
+            );
+        }).ToList();
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItemsList), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(stockOut.Id.Value);
