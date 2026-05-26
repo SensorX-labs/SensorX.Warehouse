@@ -23,6 +23,12 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
         DeliveryInfo = deliveryInfo;
     }
 
+    public void SetPickingNoteId(PickingNoteId pickingNoteId, SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate.DocumentType sourceType, Guid sourceId) 
+    {
+        PickingNoteId = pickingNoteId;
+        AddDomainEvent(new SensorX.Warehouse.Domain.Events.StockOutCreatedEvent(Id.Value, sourceType, sourceId));
+    }
+
     public Code Code { get; private set; } = null!;
     public string? Description { get; private set; } // lý do xuất
     public DeliveryInfo? DeliveryInfo { get; private set; }
@@ -48,7 +54,6 @@ public class StockOut : Entity<StockOutId>, IAggregateRoot, ICreationTrackable
         }
     }
 
-    public void SetPickingNoteId(PickingNoteId pickingNoteId) => PickingNoteId = pickingNoteId;
 }
 
 

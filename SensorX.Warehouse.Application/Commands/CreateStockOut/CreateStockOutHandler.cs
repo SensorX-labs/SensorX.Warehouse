@@ -49,6 +49,7 @@ public class CreateStockOutHandler(
 
             stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote);
 
+
             snapshotItems = pickingNote.LineItems.Select(line =>
             {
                 var inventoryItem = inventoryItems.First(x => x.ProductId == line.ProductId);

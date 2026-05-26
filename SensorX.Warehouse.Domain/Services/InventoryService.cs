@@ -41,7 +41,7 @@ public class InventoryService
             note.Description,
             note.DeliveryInfo
         );
-        stockOut.SetPickingNoteId(note.Id);
+        stockOut.SetPickingNoteId(note.Id, note.SourceDocument.Type, note.SourceDocument.Id);
 
         var itemsByProduct = items.ToLookup(x => x.ProductId);
 

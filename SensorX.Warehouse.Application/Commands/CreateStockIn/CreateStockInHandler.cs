@@ -44,20 +44,25 @@ public class CreateStockInHandler(
 
         var allInventoryItems = new List<InventoryItem>(inventoryItems);
         var existingProductIds = inventoryItems.Select(x => x.ProductId).ToHashSet();
-        foreach (var reqItem in lineItems)
+        foreach (var reqItem in request.Items)
         {
-            if (!existingProductIds.Contains(reqItem.ProductId))
+            var productId = new ProductId(reqItem.ProductId);
+            if (!existingProductIds.Contains(productId))
             {
+                var floor = !string.IsNullOrWhiteSpace(reqItem.Floor) ? reqItem.Floor : "Tầng 1";
+                var brandZone = !string.IsNullOrWhiteSpace(reqItem.BrandZone) ? reqItem.BrandZone : "Khu A";
+                var rackCode = !string.IsNullOrWhiteSpace(reqItem.RackCode) ? reqItem.RackCode : "Kệ 01";
+
                 var newItem = new InventoryItem(
                     InventoryItemId.New(),
-                    reqItem.ProductId,
-                    new WarehouseItemLocation(warehouseId, _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"], "Tầng 1", "Khu A", "Kệ 01"),
+                    productId,
+                    new WarehouseItemLocation(warehouseId, _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"] ?? "Không xác định", floor, brandZone, rackCode),
                     new Quantity(0),
                     new Quantity(0)
                 );
                 await _inventoryItemRepository.Add(newItem, cancellationToken);
                 allInventoryItems.Add(newItem);
-                existingProductIds.Add(reqItem.ProductId);
+                existingProductIds.Add(productId);
             }
         }
 

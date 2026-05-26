@@ -1,6 +1,6 @@
 using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.ValueObjects;
-
+using SensorX.Warehouse.Domain.Common.Exceptions;
 using SensorX.Warehouse.Domain.StrongIDs;
 namespace SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
 
@@ -16,6 +16,8 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
 
     public WarehouseId WarehouseId { get; private set; } = null!;
+    public Guid? LinkedTransferOrderId { get; private set; }
+    public Guid? LinkedSupplyRequestId { get; private set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     private PickingNote() : base() { }
@@ -38,10 +40,10 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         DeliveryInfo = deliveryInfo;
     }
 
-    public static PickingNote CreateForSalesOrder(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForSalesOrder(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
     {
         return new PickingNote(
-            PickingNoteId.New(),
+            id ?? PickingNoteId.New(),
             warehouseId,
             noteCode,
             new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
@@ -51,14 +53,40 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         );
     }
 
-    public static PickingNote CreateForTransferOrder(WarehouseId warehouseId, TransferOrderId transferOrderId, Code noteCode, string? description, DeliveryInfo deliveryInfo)
+    public static PickingNote CreateForTransferOrder(WarehouseId warehouseId, TransferOrderId transferOrderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
     {
         return new PickingNote(
-            PickingNoteId.New(),
+            id ?? PickingNoteId.New(),
             warehouseId,
             noteCode,
             new DocumentReference(DocumentType.TransferOrder, transferOrderId, noteCode),
             PickingStatus.Pending,
+            description,
+            deliveryInfo
+        );
+    }
+
+    public static PickingNote CreateWaitingTransfer(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
+    {
+        return new PickingNote(
+            id ?? PickingNoteId.New(),
+            warehouseId,
+            noteCode,
+            new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
+            PickingStatus.WaitingTransfer,
+            description,
+            deliveryInfo
+        );
+    }
+
+    public static PickingNote CreateWaitingSupply(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
+    {
+        return new PickingNote(
+            id ?? PickingNoteId.New(),
+            warehouseId,
+            noteCode,
+            new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
+            PickingStatus.WaitingSupply,
             description,
             deliveryInfo
         );
@@ -82,5 +110,23 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     public void ConfirmCanceled() => Status = PickingStatus.Canceled;
 
     public void ConfirmCompleted() => Status = PickingStatus.Completed;
+
+    public void SetLinkedTransferOrder(Guid transferOrderId) => LinkedTransferOrderId = transferOrderId;
+    
+    public void SetLinkedSupplyRequest(Guid supplyRequestId) => LinkedSupplyRequestId = supplyRequestId;
+    
+    public void ActivateFromTransfer()
+    {
+        if (Status != PickingStatus.WaitingTransfer)
+            throw new DomainException("PickingNote is not waiting for transfer");
+        Status = PickingStatus.Pending;
+    }
+    
+    public void ActivateFromSupply()
+    {
+        if (Status != PickingStatus.WaitingSupply)
+            throw new DomainException("PickingNote is not waiting for supply");
+        Status = PickingStatus.Pending;
+    }
 }
 

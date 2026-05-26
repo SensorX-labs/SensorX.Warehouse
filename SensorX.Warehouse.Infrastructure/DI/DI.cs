@@ -28,6 +28,10 @@ namespace SensorX.Warehouse.Infrastructure.DI
                 x.AddConsumer<UpdateProductConsumer>();
                 x.AddConsumer<ChangeProductStatusConsumer>();
                 x.AddConsumer<DeleteProductConsumer>();
+                
+                x.AddConsumer<TransferOrderFinishedConsumer>();
+                x.AddConsumer<SupplyRequestCreatedConsumer>();
+                x.AddConsumer<SupplyRequestFulfilledConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -95,6 +99,21 @@ namespace SensorX.Warehouse.Infrastructure.DI
                         e.PrefetchCount = 1;
                         e.ConcurrentMessageLimit = 1;
                         e.ConfigureConsumer<DeleteProductConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint($"transfer-order-finished-consumer-{warehouseIdShort}", e =>
+                    {
+                        e.ConfigureConsumer<TransferOrderFinishedConsumer>(context);
+                    });
+                    
+                    cfg.ReceiveEndpoint($"supply-request-created-consumer-{warehouseIdShort}", e =>
+                    {
+                        e.ConfigureConsumer<SupplyRequestCreatedConsumer>(context);
+                    });
+                    
+                    cfg.ReceiveEndpoint($"supply-request-fulfilled-consumer-{warehouseIdShort}", e =>
+                    {
+                        e.ConfigureConsumer<SupplyRequestFulfilledConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

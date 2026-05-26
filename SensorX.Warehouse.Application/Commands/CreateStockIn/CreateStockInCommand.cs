@@ -21,4 +21,7 @@ public class StockInItemCommand
     public required string ProductCode { get; set; }
     public required string Unit { get; set; }
     public int Quantity { get; set; }
+    public string? Floor { get; set; }
+    public string? BrandZone { get; set; }
+    public string? RackCode { get; set; }
 }
