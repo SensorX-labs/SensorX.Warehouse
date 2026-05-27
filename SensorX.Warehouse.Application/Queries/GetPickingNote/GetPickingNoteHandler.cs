@@ -39,7 +39,9 @@ public class GetPickingNoteHandler(
                 item.Quantity.Value,
                 item.ManufactureName,
                 item.Note
-            )).ToList()
+            )).ToList(),
+            pickingNote.LinkedTransferOrderId,
+            pickingNote.SourceDocument.Type == DocumentType.TransferOrder ? pickingNote.SourceDocument.Code : null
         );
 
         return Result<PickingNoteDto>.Success(dto);

@@ -17,6 +17,7 @@ public record StockOutDetailDto
     public string Reason => Description ?? "Kiểm kê định kỳ";
     public string Status => "Approved";
     public Guid? PickingNoteId { get; init; }
+    public string? TransferOrderCode { get; init; }
     public DateTimeOffset CreatedAt { get; init; }
     public List<StockOutItemDto> Items { get; init; } = [];
 }

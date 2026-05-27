@@ -16,7 +16,9 @@ public record PickingNoteDto(
     string? Description,
     PickingStatus Status,
     PickingNoteDeliveryInfoDto DeliveryInfo,
-    List<PickingNoteQueryItemDto> Items
+    List<PickingNoteQueryItemDto> Items,
+    Guid? LinkedTransferOrderId = null,
+    string? TransferOrderCode = null
 );
 
 public record PickingNoteDeliveryInfoDto(

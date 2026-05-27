@@ -64,6 +64,21 @@ public class CreateStockInHandler(
                 allInventoryItems.Add(newItem);
                 existingProductIds.Add(productId);
             }
+            else
+            {
+                var existingItem = allInventoryItems.First(x => x.ProductId == productId);
+                var floor = !string.IsNullOrWhiteSpace(reqItem.Floor) ? reqItem.Floor : existingItem.WarehouseItemLocation?.Floor ?? "Tầng 1";
+                var brandZone = !string.IsNullOrWhiteSpace(reqItem.BrandZone) ? reqItem.BrandZone : existingItem.WarehouseItemLocation?.BrandZone ?? "Khu A";
+                var rackCode = !string.IsNullOrWhiteSpace(reqItem.RackCode) ? reqItem.RackCode : existingItem.WarehouseItemLocation?.RackCode ?? "Kệ 01";
+
+                existingItem.UpdateLocation(new WarehouseItemLocation(
+                    warehouseId,
+                    _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"] ?? "Không xác định",
+                    floor,
+                    brandZone,
+                    rackCode
+                ));
+            }
         }
 
         var stockIn = _inventoryService.CreateStockIn(
