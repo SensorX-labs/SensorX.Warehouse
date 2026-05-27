@@ -3,6 +3,7 @@ using MassTransit;
 namespace SensorX.Warehouse.Application.Events.StockInCreated;
 
 [MessageUrn("stock-in-created")]
+[EntityName("stock-in-created")]
 public interface IStockInCreatedEvent
 {
     Guid StockInId { get; set; }

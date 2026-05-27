@@ -66,32 +66,6 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
         );
     }
 
-    public static PickingNote CreateWaitingTransfer(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
-    {
-        return new PickingNote(
-            id ?? PickingNoteId.New(),
-            warehouseId,
-            noteCode,
-            new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
-            PickingStatus.WaitingTransfer,
-            description,
-            deliveryInfo
-        );
-    }
-
-    public static PickingNote CreateWaitingSupply(WarehouseId warehouseId, OrderId orderId, Code noteCode, string? description, DeliveryInfo deliveryInfo, PickingNoteId? id = null)
-    {
-        return new PickingNote(
-            id ?? PickingNoteId.New(),
-            warehouseId,
-            noteCode,
-            new DocumentReference(DocumentType.SalesOrder, orderId, noteCode),
-            PickingStatus.WaitingSupply,
-            description,
-            deliveryInfo
-        );
-    }
-
     public void AddItem(ProductId productId, Code productCode, string productName, string unit, Quantity quantity, string manufactureName, string note)
     {
         var existingItem = _lineItems.FirstOrDefault(x => x.ProductId == productId);
@@ -114,19 +88,5 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     public void SetLinkedTransferOrder(Guid transferOrderId) => LinkedTransferOrderId = transferOrderId;
     
     public void SetLinkedSupplyRequest(Guid supplyRequestId) => LinkedSupplyRequestId = supplyRequestId;
-    
-    public void ActivateFromTransfer()
-    {
-        if (Status != PickingStatus.WaitingTransfer)
-            throw new DomainException("PickingNote is not waiting for transfer");
-        Status = PickingStatus.Pending;
-    }
-    
-    public void ActivateFromSupply()
-    {
-        if (Status != PickingStatus.WaitingSupply)
-            throw new DomainException("PickingNote is not waiting for supply");
-        Status = PickingStatus.Pending;
-    }
 }
 

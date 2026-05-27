@@ -3,6 +3,7 @@ using MassTransit;
 namespace SensorX.Warehouse.Application.Events;
 
 [MessageUrn("transfer-order-created")]
+[EntityName("transfer-order-created")]
 public record TransferOrderCreatedEvent
 {
     public Guid TransferOrderId { get; init; }

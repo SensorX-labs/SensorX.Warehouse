@@ -116,10 +116,22 @@ namespace SensorX.Warehouse.Infrastructure.DI
                         e.ConfigureConsumer<SupplyRequestFulfilledConsumer>(context);
                     });
 
+                    cfg.ReceiveEndpoint($"order-created-consumer-{warehouseIdShort}", e =>
+                    {
+                        e.ConfigureConsumer<OrderCreatedConsumer>(context);
+                    });
+
+                    cfg.ReceiveEndpoint($"transfer-order-created-consumer-{warehouseIdShort}", e =>
+                    {
+                        e.ConfigureConsumer<TransferOrderCreatedConsumer>(context);
+                    });
+
                     cfg.ConfigureEndpoints(context);
-                          // Message entity names for new events
-                          cfg.Message<InventorySnapshotEvent>(e => e.SetEntityName("Inventory-Snapshot-Event"));
-                          cfg.Message<WarehouseConnectedEvent>(e => e.SetEntityName("Warehouse-Connected-Event"));
+                    // Message entity names for new events
+                    cfg.Message<InventorySnapshotEvent>(e => e.SetEntityName("Inventory-Snapshot-Event"));
+                    cfg.Message<WarehouseConnectedEvent>(e => e.SetEntityName("Warehouse-Connected-Event"));
+                    cfg.Message<OrderCreatedEvent>(e => e.SetEntityName("order-created"));
+                    cfg.Message<TransferOrderCreatedEvent>(e => e.SetEntityName("transfer-order-created"));
                 });
             });
 

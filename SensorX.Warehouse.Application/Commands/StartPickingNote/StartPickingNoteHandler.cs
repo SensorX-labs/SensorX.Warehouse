@@ -38,6 +38,18 @@ public class StartPickingNoteHandler(
         var inventorySpec = new GetInventoryItemByProductIds(pickingNote.WarehouseId, [.. productIds]);
         var inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
 
+        // 3.5. Validate inventory availability before allocating
+        foreach (var item in pickingNote.LineItems)
+        {
+            var inventoryItem = inventoryItems.FirstOrDefault(x => x.ProductId == item.ProductId);
+            var salableQty = inventoryItem?.GetSalableQuantity() ?? 0;
+            if (inventoryItem == null || salableQty < item.Quantity.Value)
+            {
+                return Result<Guid>.Failure(
+                    $"Không đủ hàng trong kho cho sản phẩm {item.ProductCode.Value}. Cần: {item.Quantity.Value}, Khả dụng: {salableQty}. Vui lòng tạo yêu cầu cung ứng.");
+            }
+        }
+
         // 4. Start picking via service (allocates inventory, updates status)
         _inventoryService.StartPicking(inventoryItems, pickingNote);
 

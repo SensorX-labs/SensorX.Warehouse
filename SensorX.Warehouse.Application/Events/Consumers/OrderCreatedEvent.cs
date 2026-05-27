@@ -3,15 +3,13 @@ using MassTransit;
 
 namespace SensorX.Warehouse.Application.Events;
 
-public enum PickingAction { DirectPick, WaitingTransfer, WaitingSupply }
-
 [MessageUrn("order-created")]
+[EntityName("order-created")]
 public record OrderCreatedEvent
 {
     public Guid OrderId { get; init; }
     public Guid NearestWarehouseId { get; init; }
     public Guid PickingNoteId { get; init; }
-    public PickingAction ActionType { get; init; }
     public string OrderCode { get; init; } = string.Empty;
     public DateTimeOffset CreatedAt { get; init; }
     // DeliveryInfo fields
