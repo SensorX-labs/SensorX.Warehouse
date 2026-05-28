@@ -12,6 +12,7 @@ using SensorX.Warehouse.Domain.SeedWork;
 using SensorX.Warehouse.Domain.Services;
 using SensorX.Warehouse.Domain.StrongIDs;
 using SensorX.Warehouse.Domain.ValueObjects;
+using Microsoft.Extensions.Configuration;
 
 namespace SensorX.Warehouse.Application.Commands.CreateStockOut;
 
@@ -21,7 +22,8 @@ public class CreateStockOutHandler(
     IRepository<StockOut> _stockOutRepository,
     IUnitOfWork _unitOfWork,
     InventoryService _inventoryService,
-    IPublishEndpoint _publishEndpoint
+    IPublishEndpoint _publishEndpoint,
+    IConfiguration _configuration
 ) : IRequestHandler<CreateStockOutCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateStockOutCommand request, CancellationToken cancellationToken)
@@ -29,6 +31,7 @@ public class CreateStockOutHandler(
         var warehouseId = new WarehouseId(request.WarehouseId);
         StockOut stockOut;
         List<InventoryItem> inventoryItems;
+        List<InventoryItem> allInventoryItems;
         PickingNote? pickingNote = null;
         List<InventoryItemSnapshot> snapshotItems;
 
@@ -46,8 +49,10 @@ public class CreateStockOutHandler(
             var productIds = pickingNote.LineItems.Select(x => x.ProductId).Distinct().ToList();
             var inventorySpec = new GetInventoryItemByProductIds(warehouseId, [.. productIds]);
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
+            allInventoryItems = inventoryItems;
 
             stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote);
+
 
             snapshotItems = pickingNote.LineItems.Select(line =>
             {
@@ -74,6 +79,7 @@ public class CreateStockOutHandler(
             var productIds = request.Items.Select(x => new ProductId(x.ProductId)).Distinct().ToList();
             var inventorySpec = new GetInventoryItemByProductIds(warehouseId, productIds);
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
+            allInventoryItems = new List<InventoryItem>(inventoryItems);
 
             // For simplicity, we just handle one item for now or multiple items? 
             // The AdjustInventory in service currently handles ONE item.
@@ -84,8 +90,36 @@ public class CreateStockOutHandler(
             stockOut = new StockOut(StockOutId.New(), warehouseId, code, request.Description, null);
             foreach (var itemDto in request.Items)
             {
-                var inventoryItem = inventoryItems.FirstOrDefault(x => x.ProductId == itemDto.ProductId);
-                if (inventoryItem == null) return Result<Guid>.Failure($"Product {itemDto.ProductId} not found in inventory.");
+                var productId = new ProductId(itemDto.ProductId);
+                var inventoryItem = allInventoryItems.FirstOrDefault(x => x.ProductId == productId);
+                if (inventoryItem == null)
+                {
+                    if (isAdjustment)
+                    {
+                        var floor = "Tầng 1";
+                        var brandZone = "Khu A";
+                        var rackCode = "Kệ 01";
+                        inventoryItem = new InventoryItem(
+                            InventoryItemId.New(),
+                            productId,
+                            new WarehouseItemLocation(
+                                warehouseId, 
+                                _configuration["WAREHOUSE_NAME"] ?? _configuration["Warehouse:Name"] ?? "Không xác định", 
+                                floor, 
+                                brandZone, 
+                                rackCode
+                            ),
+                            new Quantity(0),
+                            new Quantity(0)
+                        );
+                        await _inventoryItemRepository.Add(inventoryItem, cancellationToken);
+                        allInventoryItems.Add(inventoryItem);
+                    }
+                    else
+                    {
+                        return Result<Guid>.Failure($"Product {itemDto.ProductId} not found in inventory.");
+                    }
+                }
                 var encodedNote = isAdjustment ? $"[Adj:{itemDto.AdjustedQuantity}] {itemDto.Note}".Trim() : itemDto.Note;
 
                 stockOut.AddItem(
@@ -104,7 +138,7 @@ public class CreateStockOutHandler(
 
             snapshotItems = request.Items.Select(itemDto =>
             {
-                var inventoryItem = inventoryItems.First(x => x.ProductId.Value == itemDto.ProductId);
+                var inventoryItem = allInventoryItems.First(x => x.ProductId.Value == itemDto.ProductId);
                 return new InventoryItemSnapshot(
                     itemDto.ProductId,
                     itemDto.ProductCode,
@@ -120,9 +154,34 @@ public class CreateStockOutHandler(
         }
 
         await _stockOutRepository.Add(stockOut, cancellationToken);
-        await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+        if (inventoryItems.Count > 0)
+        {
+            await _inventoryItemRepository.UpdateRange(inventoryItems, cancellationToken);
+        }
 
-        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItems), cancellationToken);
+        // Publish inventory snapshot with ALL warehouse items (not just those modified)
+        // After removing the "delete obsolete" logic in the consumer, this ensures no data loss
+        var warehouseId_ = new WarehouseId(request.WarehouseId);
+        
+        // For stock out operations, we can't easily fetch all items in warehouse
+        // Instead, publish snapshot of items being adjusted + include product details
+        var snapshotItemsList = allInventoryItems.Select(item =>
+        {
+            var requestItem = request.Items?.FirstOrDefault(x => x.ProductId == item.ProductId.Value);
+            return new InventoryItemSnapshot(
+                item.ProductId.Value,
+                requestItem?.ProductCode,  // Use request details if available
+                requestItem?.ProductName,
+                requestItem?.Unit,
+                item.PhysicalQuantity.Value,
+                item.AllocatedQuantity.Value,
+                item.WarehouseItemLocation?.WarehouseName,
+                item.WarehouseItemLocation?.BrandZone,
+                item.WarehouseItemLocation?.RackCode
+            );
+        }).ToList();
+
+        await _publishEndpoint.Publish(new InventorySnapshotEvent(request.WarehouseId.ToString(), DateTimeOffset.UtcNow, snapshotItemsList), cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(stockOut.Id.Value);

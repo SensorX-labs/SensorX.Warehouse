@@ -1,4 +1,6 @@
 using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SensorX.Warehouse.Infrastructure.Persistences.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260512232800_AddProductReadModelsTable")]
     public partial class AddProductReadModelsTable : Migration
     {
         /// <inheritdoc />

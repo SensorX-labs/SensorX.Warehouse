@@ -7,4 +7,3 @@ public enum PickingStatus
     Completed, // Xác nhận đủ hàng
     Canceled   // Đã hủy
 }
-

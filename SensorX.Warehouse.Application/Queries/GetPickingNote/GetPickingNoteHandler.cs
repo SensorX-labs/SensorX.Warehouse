@@ -21,6 +21,7 @@ public class GetPickingNoteHandler(
 
         var dto = new PickingNoteDto(
             pickingNote.Id.Value,
+            pickingNote.WarehouseId.Value,
             pickingNote.Code.Value,
             pickingNote.Description,
             pickingNote.Status,
@@ -39,7 +40,9 @@ public class GetPickingNoteHandler(
                 item.Quantity.Value,
                 item.ManufactureName,
                 item.Note
-            )).ToList()
+            )).ToList(),
+            pickingNote.LinkedTransferOrderId,
+            pickingNote.SourceDocument.Type == DocumentType.TransferOrder ? pickingNote.SourceDocument.Code : null
         );
 
         return Result<PickingNoteDto>.Success(dto);

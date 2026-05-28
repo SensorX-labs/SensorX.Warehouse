@@ -19,7 +19,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Jwt:RequireHttpsMetadata");
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
+            ValidateIssuer = false, // Tin tưởng Gateway đã validate Issuer
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = false, // Thường Gateway đã validate rồi

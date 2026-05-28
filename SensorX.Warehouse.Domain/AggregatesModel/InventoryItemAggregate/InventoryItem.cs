@@ -84,5 +84,11 @@ public class InventoryItem : Entity<InventoryItemId>, IAggregateRoot, ICreationT
     {
         return PhysicalQuantity - AllocatedQuantity;
     }
+
+    public void UpdateLocation(WarehouseItemLocation location)
+    {
+        WarehouseItemLocation = location;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
 }
 

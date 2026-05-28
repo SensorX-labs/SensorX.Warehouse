@@ -1,5 +1,5 @@
-
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SensorX.Warehouse.Application.Events;
 using SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate;
@@ -13,20 +13,37 @@ namespace SensorX.Warehouse.Application.Events.Consumers;
 public class OrderCreatedConsumer(
     ILogger<OrderCreatedConsumer> logger,
     IRepository<PickingNote> pickingNoteRepository,
-    IUnitOfWork unitOfWork) : IConsumer<OrderCreatedEvent>
+    IUnitOfWork unitOfWork,
+    IConfiguration configuration) : IConsumer<OrderCreatedEvent>
 {
     public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {
         var message = context.Message;
-        logger.LogInformation("Received OrderCreatedEvent for OrderId: {OrderId}, OrderCode: {OrderCode}", message.OrderId, message.OrderCode);
+        logger.LogInformation("OrderCreatedConsumer: [START] Consumed OrderCreatedEvent for OrderId={OrderId}, OrderCode={OrderCode}, NearestWarehouseId={NearestWarehouseId}", 
+            message.OrderId, message.OrderCode, message.NearestWarehouseId);
+        
+        var localWarehouseIdStr = configuration["WAREHOUSE_ID"] ?? configuration["Warehouse:Id"];
+        if (Guid.TryParse(localWarehouseIdStr, out var localWarehouseGuid))
+        {
+            if (message.NearestWarehouseId != localWarehouseGuid)
+            {
+                logger.LogInformation("OrderCreatedConsumer: nearest warehouse {NearestWarehouseId} does not match local warehouse {LocalWarehouseId}. Skipping processing.", 
+                    message.NearestWarehouseId, localWarehouseGuid);
+                return;
+            }
+            logger.LogInformation("OrderCreatedConsumer: Nearest warehouse ID matches local warehouse {LocalWarehouseGuid}.", localWarehouseGuid);
+        }
+        else
+        {
+            logger.LogWarning("OrderCreatedConsumer: Invalid or missing WAREHOUSE_ID '{LocalWarehouseIdStr}'. Skipping processing of OrderCreatedEvent.", localWarehouseIdStr);
+            return;
+        }
 
-        // Logic to create PickingNote from Order
-        // For now, just logging. Will need Order details from Master project.
-        // Placeholder: Create a PickingNote with dummy data for now.
+        logger.LogInformation("OrderCreatedConsumer: Received matched OrderCreatedEvent for OrderId: {OrderId}", message.OrderId);
+
+        var nearestWarehouseId = new WarehouseId(message.NearestWarehouseId);
         var orderId = new OrderId(message.OrderId);
         var noteCode = Code.Create($"PN-{message.OrderCode}");
-        var description = $"Picking Note for Order {message.OrderCode}";
-        // Use DeliveryInfo from event
         var deliveryInfo = new DeliveryInfo(
             message.ReceiverName,
             message.ReceiverPhone,
@@ -35,11 +52,35 @@ public class OrderCreatedConsumer(
             message.TaxCode
         );
 
-        var pickingNote = PickingNote.CreateForSalesOrder(new WarehouseId(message.WarehouseId), orderId, noteCode, description, deliveryInfo);
+        // Always create a Pending PickingNote
+        var note = PickingNote.CreateForSalesOrder(
+            nearestWarehouseId, 
+            orderId, 
+            noteCode, 
+            $"Picking for Order {message.OrderCode}", 
+            deliveryInfo,
+            message.PickingNoteId != Guid.Empty ? new PickingNoteId(message.PickingNoteId) : null
+        );
 
-        await pickingNoteRepository.Add(pickingNote, context.CancellationToken);
+        logger.LogInformation("OrderCreatedConsumer: Adding {Count} line items to the picking note", message.LineItems.Count);
+        foreach (var item in message.LineItems)
+        {
+            note.AddItem(
+                new ProductId(item.ProductId), 
+                Code.From(item.ProductCode), 
+                item.ProductName, 
+                item.Unit, 
+                new Quantity(item.Quantity), 
+                item.ManufactureName, 
+                ""
+            );
+        }
+
+        logger.LogInformation("OrderCreatedConsumer: Adding picking note to repository");
+        await pickingNoteRepository.Add(note, context.CancellationToken);
+        logger.LogInformation("OrderCreatedConsumer: Saving changes to DB via UnitOfWork");
         await unitOfWork.SaveChangesAsync(context.CancellationToken);
-
-        logger.LogInformation("Created PickingNote {PickingNoteCode} for Order {OrderCode}", pickingNote.Code.Value, message.OrderCode);
+        
+        logger.LogInformation("OrderCreatedConsumer: [END] Created Pending PickingNote {PickingNoteCode} from OrderCreatedEvent successfully.", note.Code.Value);
     }
 }

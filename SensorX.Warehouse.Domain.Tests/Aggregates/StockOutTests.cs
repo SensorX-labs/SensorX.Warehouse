@@ -104,9 +104,11 @@ public class StockOutTests
         // Arrange
         var stockOut = CreateDefaultStockOut();
         var pickingNoteId = PickingNoteId.New();
+        var sourceType = DocumentType.SalesOrder;
+        var sourceId = Guid.NewGuid();
 
         // Act
-        stockOut.SetPickingNoteId(pickingNoteId);
+        stockOut.SetPickingNoteId(pickingNoteId, sourceType, sourceId);
 
         // Assert
         Assert.Equal(pickingNoteId, stockOut.PickingNoteId);
