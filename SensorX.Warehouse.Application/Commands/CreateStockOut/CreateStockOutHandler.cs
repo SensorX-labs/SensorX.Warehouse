@@ -51,7 +51,7 @@ public class CreateStockOutHandler(
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
             allInventoryItems = inventoryItems;
 
-            stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote);
+            stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote, request.Note);
 
 
             snapshotItems = pickingNote.LineItems.Select(line =>

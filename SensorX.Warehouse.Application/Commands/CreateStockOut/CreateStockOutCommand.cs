@@ -20,6 +20,7 @@ public class CreateStockOutCommand : IRequest<Result<Guid>>
 
     public string? Reason { get; set; }
     public string? Code { get; set; }
+    public string? Note { get; set; }
     public bool IsAdjustment { get; set; }
     public List<StockOutItemDto>? Items { get; set; }
 }
