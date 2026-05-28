@@ -19,24 +19,27 @@ public class OrderCreatedConsumer(
     public async Task Consume(ConsumeContext<OrderCreatedEvent> context)
     {
         var message = context.Message;
+        logger.LogInformation("OrderCreatedConsumer: [START] Consumed OrderCreatedEvent for OrderId={OrderId}, OrderCode={OrderCode}, NearestWarehouseId={NearestWarehouseId}", 
+            message.OrderId, message.OrderCode, message.NearestWarehouseId);
         
         var localWarehouseIdStr = configuration["WAREHOUSE_ID"] ?? configuration["Warehouse:Id"];
         if (Guid.TryParse(localWarehouseIdStr, out var localWarehouseGuid))
         {
             if (message.NearestWarehouseId != localWarehouseGuid)
             {
-                logger.LogInformation("OrderCreatedEvent nearest warehouse {NearestWarehouseId} does not match local warehouse {LocalWarehouseId}. Skipping.", 
+                logger.LogInformation("OrderCreatedConsumer: nearest warehouse {NearestWarehouseId} does not match local warehouse {LocalWarehouseId}. Skipping processing.", 
                     message.NearestWarehouseId, localWarehouseGuid);
                 return;
             }
+            logger.LogInformation("OrderCreatedConsumer: Nearest warehouse ID matches local warehouse {LocalWarehouseGuid}.", localWarehouseGuid);
         }
         else
         {
-            logger.LogWarning("Invalid or missing WAREHOUSE_ID '{LocalWarehouseIdStr}'. Skipping processing of OrderCreatedEvent.", localWarehouseIdStr);
+            logger.LogWarning("OrderCreatedConsumer: Invalid or missing WAREHOUSE_ID '{LocalWarehouseIdStr}'. Skipping processing of OrderCreatedEvent.", localWarehouseIdStr);
             return;
         }
 
-        logger.LogInformation("Received OrderCreatedEvent for OrderId: {OrderId}", message.OrderId);
+        logger.LogInformation("OrderCreatedConsumer: Received matched OrderCreatedEvent for OrderId: {OrderId}", message.OrderId);
 
         var nearestWarehouseId = new WarehouseId(message.NearestWarehouseId);
         var orderId = new OrderId(message.OrderId);
@@ -59,6 +62,7 @@ public class OrderCreatedConsumer(
             message.PickingNoteId != Guid.Empty ? new PickingNoteId(message.PickingNoteId) : null
         );
 
+        logger.LogInformation("OrderCreatedConsumer: Adding {Count} line items to the picking note", message.LineItems.Count);
         foreach (var item in message.LineItems)
         {
             note.AddItem(
@@ -72,9 +76,11 @@ public class OrderCreatedConsumer(
             );
         }
 
+        logger.LogInformation("OrderCreatedConsumer: Adding picking note to repository");
         await pickingNoteRepository.Add(note, context.CancellationToken);
+        logger.LogInformation("OrderCreatedConsumer: Saving changes to DB via UnitOfWork");
         await unitOfWork.SaveChangesAsync(context.CancellationToken);
         
-        logger.LogInformation("Created Pending PickingNote {PickingNoteCode} from OrderCreatedEvent", note.Code.Value);
+        logger.LogInformation("OrderCreatedConsumer: [END] Created Pending PickingNote {PickingNoteCode} from OrderCreatedEvent successfully.", note.Code.Value);
     }
 }

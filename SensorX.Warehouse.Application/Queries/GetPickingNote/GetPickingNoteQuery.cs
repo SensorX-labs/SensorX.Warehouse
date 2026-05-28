@@ -12,6 +12,7 @@ public class GetPickingNoteQuery : IRequest<Result<PickingNoteDto>>
 
 public record PickingNoteDto(
     Guid Id,
+    Guid WarehouseId,
     string Code,
     string? Description,
     PickingStatus Status,

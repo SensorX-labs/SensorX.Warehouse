@@ -21,6 +21,7 @@ public class GetPickingNoteHandler(
 
         var dto = new PickingNoteDto(
             pickingNote.Id.Value,
+            pickingNote.WarehouseId.Value,
             pickingNote.Code.Value,
             pickingNote.Description,
             pickingNote.Status,
