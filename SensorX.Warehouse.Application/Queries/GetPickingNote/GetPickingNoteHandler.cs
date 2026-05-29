@@ -42,7 +42,9 @@ public class GetPickingNoteHandler(
                 item.Note
             )).ToList(),
             pickingNote.LinkedTransferOrderId,
-            pickingNote.SourceDocument.Type == DocumentType.TransferOrder ? pickingNote.SourceDocument.Code : null
+            pickingNote.SourceDocument.Type == DocumentType.TransferOrder ? pickingNote.SourceDocument.Code : null,
+            pickingNote.SourceDocument.Id,
+            (int)pickingNote.SourceDocument.Type
         );
 
         return Result<PickingNoteDto>.Success(dto);

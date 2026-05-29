@@ -19,7 +19,9 @@ public record PickingNoteDto(
     PickingNoteDeliveryInfoDto DeliveryInfo,
     List<PickingNoteQueryItemDto> Items,
     Guid? LinkedTransferOrderId = null,
-    string? TransferOrderCode = null
+    string? TransferOrderCode = null,
+    Guid? SourceDocumentId = null,
+    int? SourceDocumentType = null
 );
 
 public record PickingNoteDeliveryInfoDto(
