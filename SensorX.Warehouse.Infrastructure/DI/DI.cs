@@ -147,6 +147,8 @@ namespace SensorX.Warehouse.Infrastructure.DI
             services.AddScoped<IQueryExecutor, QueryExecutor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
+            
+            services.AddHttpClient<IMasterServiceClient, MasterServiceClient>();
 
             return services;
         }
