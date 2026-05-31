@@ -15,7 +15,7 @@ public class StockOutCreatedEventHandler(IPublishEndpoint _publishEndpoint)
         await _publishEndpoint.Publish<IStockOutCreatedEvent>(new
         {
             domainEvent.StockOutId,
-            domainEvent.SourceType,
+            SourceType = (int)domainEvent.SourceType,
             domainEvent.SourceId
         }, cancellationToken);
     }

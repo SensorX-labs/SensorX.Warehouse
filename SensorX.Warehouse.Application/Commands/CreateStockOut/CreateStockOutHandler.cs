@@ -23,7 +23,8 @@ public class CreateStockOutHandler(
     IUnitOfWork _unitOfWork,
     InventoryService _inventoryService,
     IPublishEndpoint _publishEndpoint,
-    IConfiguration _configuration
+    IConfiguration _configuration,
+    IMasterServiceClient _masterServiceClient
 ) : IRequestHandler<CreateStockOutCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateStockOutCommand request, CancellationToken cancellationToken)
@@ -46,12 +47,26 @@ public class CreateStockOutHandler(
             if (pickingNote.Status != PickingStatus.Completed)
                 return Result<Guid>.Failure($"Picking note must be completed to create stock out. Current status: {pickingNote.Status}");
 
+            if (pickingNote.SourceDocument != null && pickingNote.SourceDocument.Type == DocumentType.SalesOrder)
+            {
+                var paymentStatus = await _masterServiceClient.GetOrderPaymentStatusAsync(pickingNote.SourceDocument.Id, cancellationToken);
+                if (paymentStatus == null)
+                {
+                    return Result<Guid>.Failure("Không thể xác thực trạng thái thanh toán của đơn hàng từ hệ thống Master. Vui lòng thử lại sau.");
+                }
+
+                if (!paymentStatus.IsPaid)
+                {
+                    return Result<Guid>.Failure($"Đơn hàng chưa được thanh toán! Trạng thái thanh toán: {paymentStatus.PaymentStatus}. Vui lòng thanh toán đầy đủ trước khi xuất kho.");
+                }
+            }
+
             var productIds = pickingNote.LineItems.Select(x => x.ProductId).Distinct().ToList();
             var inventorySpec = new GetInventoryItemByProductIds(warehouseId, [.. productIds]);
             inventoryItems = await _inventoryItemRepository.ListAsync(inventorySpec, cancellationToken);
             allInventoryItems = inventoryItems;
 
-            stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote);
+            stockOut = _inventoryService.CreateStockOutFromPickingNote(inventoryItems, pickingNote, request.Note);
 
 
             snapshotItems = pickingNote.LineItems.Select(line =>

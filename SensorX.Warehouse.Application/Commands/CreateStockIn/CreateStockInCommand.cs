@@ -8,6 +8,7 @@ public class CreateStockInCommand : IRequest<Result<Guid>>
 {
     public Guid WarehouseId { get; set; }
     public string? TransferOrderCode { get; set; }
+    public string? LinkedTransferOrderCode { get; set; }
     public required string DeliveredBy { get; set; }
     public required string WarehouseKeeper { get; set; }
     public string? Description { get; set; }

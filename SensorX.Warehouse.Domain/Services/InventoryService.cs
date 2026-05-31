@@ -31,14 +31,15 @@ public class InventoryService
     /// </summary>
     public StockOut CreateStockOutFromPickingNote(
         List<InventoryItem> items,
-        PickingNote note
+        PickingNote note,
+        string? noteOverride = null
     )
     {
         var stockOut = new StockOut(
             StockOutId.New(),
             note.WarehouseId,
             Code.Create("PX"),
-            note.Description,
+            !string.IsNullOrEmpty(noteOverride) ? noteOverride : note.Description,
             note.DeliveryInfo
         );
         stockOut.SetPickingNoteId(note.Id, note.SourceDocument.Type, note.SourceDocument.Id);
