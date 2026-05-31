@@ -8,6 +8,6 @@ namespace SensorX.Warehouse.Application.Events.StockOutCreated;
 public interface IStockOutCreatedEvent
 {
     Guid StockOutId { get; set; }
-    SensorX.Warehouse.Domain.AggregatesModel.PickingNoteAggregate.DocumentType SourceType { get; set; }
+    int SourceType { get; set; }
     Guid SourceId { get; set; }
 }

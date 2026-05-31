@@ -50,7 +50,7 @@ public class TransferOrderCreatedConsumer(
                 new TransferOrderId(message.TransferOrderId),
                 noteCode,
                 $"Pick items for Transfer Order {message.TransferOrderCode}",
-                new DeliveryInfo("", Code.From(""), "", "", "") // Dummy delivery info for TO
+                new DeliveryInfo("TransferOrder", "0000000000", "TransferAddress", "TransferCompany", "TransferTaxCode") // Dummy delivery info for TO
             );
 
             foreach (var item in message.Items)

@@ -39,7 +39,8 @@ public class CreateStockInHandler(
             Quantity = new Quantity(x.Quantity)
         }).ToList();
 
-        var transferOrderCode = request.TransferOrderCode != null ? Code.From(request.TransferOrderCode) : null;
+        var rawCode = request.TransferOrderCode ?? request.LinkedTransferOrderCode;
+        var transferOrderCode = rawCode != null ? Code.From(rawCode) : null;
         var inventoryItems = await _inventoryItemRepository.ListAsync(spec, cancellationToken);
 
         var allInventoryItems = new List<InventoryItem>(inventoryItems);
