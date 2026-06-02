@@ -28,9 +28,6 @@ public class PickingNoteConfiguration : IEntityTypeConfiguration<PickingNote>
         builder.Property(x => x.WarehouseId)
             .HasConversion(x => x.Value, x => new WarehouseId(x));
 
-        builder.Property(x => x.LinkedTransferOrderId).IsRequired(false);
-        builder.Property(x => x.LinkedSupplyRequestId).IsRequired(false);
-
         builder.OwnsOne(x => x.SourceDocument, sourceDocument =>
         {
             sourceDocument.Property(x => x.Type).HasColumnName("DocumentType");

@@ -16,8 +16,6 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
     public IReadOnlyList<PickingLineItem> LineItems => _lineItems.AsReadOnly();
 
     public WarehouseId WarehouseId { get; private set; } = null!;
-    public Guid? LinkedTransferOrderId { get; private set; }
-    public Guid? LinkedSupplyRequestId { get; private set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     private PickingNote() : base() { }
@@ -85,8 +83,5 @@ public class PickingNote : Entity<PickingNoteId>, IAggregateRoot, ICreationTrack
 
     public void ConfirmCompleted() => Status = PickingStatus.Completed;
 
-    public void SetLinkedTransferOrder(Guid transferOrderId) => LinkedTransferOrderId = transferOrderId;
-    
-    public void SetLinkedSupplyRequest(Guid supplyRequestId) => LinkedSupplyRequestId = supplyRequestId;
 }
 

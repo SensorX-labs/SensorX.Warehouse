@@ -22,10 +22,9 @@ public class SupplyRequestFulfilledConsumer(
         var pickingNote = await pickingNoteRepository.GetByIdAsync(new PickingNoteId(message.PickingNoteId), context.CancellationToken);
         if (pickingNote != null)
         {
-            pickingNote.SetLinkedSupplyRequest(message.SupplyRequestId);
             await pickingNoteRepository.Update(pickingNote, context.CancellationToken);
             await unitOfWork.SaveChangesAsync(context.CancellationToken);
-            logger.LogInformation("Linked SupplyRequest {SupplyRequestId} to PickingNote {PickingNoteId}", message.SupplyRequestId, message.PickingNoteId);
+            logger.LogInformation("Processed SupplyRequestFulfilledEvent for PickingNote {PickingNoteId}", message.PickingNoteId);
         }
     }
 }

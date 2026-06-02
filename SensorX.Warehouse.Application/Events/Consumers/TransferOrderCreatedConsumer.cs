@@ -29,17 +29,8 @@ public class TransferOrderCreatedConsumer(
             return;
         }
 
-        // 1. Link to destination picking note if any (only on the destination warehouse)
-        if (message.PickingNoteId != Guid.Empty && message.ToWarehouseId == localWarehouseGuid)
-        {
-            var destNote = await pickingNoteRepository.GetByIdAsync(new PickingNoteId(message.PickingNoteId), context.CancellationToken);
-            if (destNote != null)
-            {
-                destNote.SetLinkedTransferOrder(message.TransferOrderId);
-                await pickingNoteRepository.Update(destNote, context.CancellationToken);
-                logger.LogInformation("Linked TransferOrder {TransferOrderId} to destination PickingNote {PickingNoteId}", message.TransferOrderId, message.PickingNoteId);
-            }
-        }
+        // 1. Link to destination picking note removed (LinkedTransferOrderId field deleted)
+        // if (message.PickingNoteId != Guid.Empty && message.ToWarehouseId == localWarehouseGuid) { ... }
 
         // 2. Create source picking note for the FromWarehouse so they can pick and ship it (only on the source warehouse)
         if (message.FromWarehouseId != Guid.Empty && message.FromWarehouseId == localWarehouseGuid && message.Items.Any())

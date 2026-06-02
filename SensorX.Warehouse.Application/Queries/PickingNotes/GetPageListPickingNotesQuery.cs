@@ -16,8 +16,7 @@ public record GetPageListPickingNotesResponse(
     string? Description,
     string Status,
     DateTimeOffset CreatedAt,
-    string? TransferOrderCode = null,
-    Guid? LinkedTransferOrderId = null
+    string? TransferOrderCode = null
 );
 
 public class PickingNoteCursorPagedResult : CursorPagedResult<GetPageListPickingNotesResponse> { }

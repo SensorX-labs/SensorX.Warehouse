@@ -22,10 +22,9 @@ public class TransferOrderFinishedConsumer(
         var pickingNote = await pickingNoteRepository.GetByIdAsync(new PickingNoteId(message.PickingNoteId), context.CancellationToken);
         if (pickingNote != null)
         {
-            pickingNote.SetLinkedTransferOrder(message.TransferOrderId);
             await pickingNoteRepository.Update(pickingNote, context.CancellationToken);
             await unitOfWork.SaveChangesAsync(context.CancellationToken);
-            logger.LogInformation("Linked TransferOrder {TransferOrderId} to PickingNote {PickingNoteId}", message.TransferOrderId, message.PickingNoteId);
+            logger.LogInformation("Processed TransferOrderFinishedEvent for PickingNote {PickingNoteId}", message.PickingNoteId);
         }
     }
 }

@@ -40,8 +40,7 @@ public class GetPageListPickingNotesHandler(
                     x.Description,
                     x.Status.ToString(),
                     x.CreatedAt,
-                    x.SourceDocument.Type == DocumentType.TransferOrder ? x.SourceDocument.Code : null,
-                    x.LinkedTransferOrderId
+                    x.SourceDocument.Type == DocumentType.TransferOrder ? x.SourceDocument.Code : null
                 ))
                 .Take(request.PageSize + 1),
                 cancellationToken);
