@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "https": {
@@ -16,7 +16,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5202",
+      "applicationUrl": "http://localhost:5203",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Username=postgres;Password=sk1234;Database=SensorX_Warehouse",
@@ -24,6 +24,6 @@
         "Jwt__Audience": "api",
         "Jwt__RequireHttpsMetadata": "false"
       }
-    },
+    }
   }
 }
