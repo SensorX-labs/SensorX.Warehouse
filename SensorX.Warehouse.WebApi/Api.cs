@@ -13,6 +13,7 @@ public static class Api
         api.MapStockOutApi();
 
         api.MapInventoryApi();
+        api.MapAnalyticsApi();
 
         return api;
     }
