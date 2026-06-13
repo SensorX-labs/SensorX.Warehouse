@@ -149,6 +149,7 @@ namespace SensorX.Warehouse.Infrastructure.DI
             services.AddScoped<ICurrentUser, CurrentUser>();
             
             services.AddHttpClient<IMasterServiceClient, MasterServiceClient>();
+            services.AddHttpClient<IDataServiceClient, DataServiceClient>();
 
             return services;
         }
