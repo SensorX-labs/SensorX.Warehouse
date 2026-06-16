@@ -18,6 +18,7 @@ public record PickingNoteDto(
     PickingStatus Status,
     PickingNoteDeliveryInfoDto DeliveryInfo,
     List<PickingNoteQueryItemDto> Items,
+    DateTimeOffset CreatedAt,
     string? TransferOrderCode = null,
     Guid? SourceDocumentId = null,
     int? SourceDocumentType = null

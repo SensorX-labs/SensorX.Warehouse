@@ -41,6 +41,7 @@ public class GetPickingNoteHandler(
                 item.ManufactureName,
                 item.Note
             )).ToList(),
+            pickingNote.CreatedAt,
             pickingNote.SourceDocument.Type == DocumentType.TransferOrder ? pickingNote.SourceDocument.Code : null,
             pickingNote.SourceDocument.Id,
             (int)pickingNote.SourceDocument.Type
